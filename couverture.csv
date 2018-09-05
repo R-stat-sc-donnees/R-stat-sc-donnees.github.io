@@ -12,32 +12,32 @@ analyse factorielle;AFM
 R;classification
 classification;CAH
 classification;K-means
-classification;modèle de mélange
-R;régression
-régression;anova
-régression;regéression
-régression;ancova
-régression;logistique
-régression;LDA
-régression;arbre
-régression;PLS
+classification;modÃ¨le de mÃ©lange
+R;rÃ©gression
+rÃ©gression;anova
+rÃ©gression;regÃ©ression
+rÃ©gression;ancova
+rÃ©gression;logistique
+rÃ©gression;LDA
+rÃ©gression;arbre
+rÃ©gression;PLS
 R;machine learning
-machine learning;forêt
+machine learning;forÃªt
 machine learning;boosting
 machine learning;calibration
 machine learning;SVM
-machine learning;régression sous contrainte
-machine learning;comaraison de méthodes
+machine learning;rÃ©gression sous contrainte
+machine learning;comaraison de mÃ©thodes
 R;divers
-divers;données manquantes
+divers;donnÃ©es manquantes
 divers;fouille de graphe
 divers;analyse de tests
 divers;deep learning
 R;base de R
 base de R;Rstudio
 base de R;importer
-base de R;manipuler les données
-base de R;concaténer
+base de R;manipuler les donnÃ©es
+base de R;concatÃ©ner
 R;visualiser
 visualiser;carte
 visualiser;graphique interactif
@@ -45,10 +45,10 @@ visualiser;graphique
 visualiser;ggplot
 R;programmer
 programmer;faire une fonction
-programmer;calcul parallèle
+programmer;calcul parallÃ¨le
 programmer;shiny
-R;outils avancés
-outils avancés;web scraping
-outils avancés;base de données
-outils avancés;data.table
-outils avancés;dplyr et tydiverse
+R;outils avancÃ©s
+outils avancÃ©s;web scraping
+outils avancÃ©s;base de donnÃ©es
+outils avancÃ©s;data.table
+outils avancÃ©s;dplyr et tydiverse
