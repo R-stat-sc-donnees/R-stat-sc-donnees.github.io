@@ -1,0 +1,54 @@
+chapitre;section
+R;tests
+tests;int_conf
+tests;comparaison
+tests;chi2
+tests;test prop
+R;analyse factorielle
+analyse factorielle;ACP
+analyse factorielle;AFC
+analyse factorielle;ACM
+analyse factorielle;AFM
+R;classification
+classification;CAH
+classification;K-means
+classification;modèle de mélange
+R;régression
+régression;anova
+régression;regéression
+régression;ancova
+régression;logistique
+régression;LDA
+régression;arbre
+régression;PLS
+R;machine learning
+machine learning;forêt
+machine learning;boosting
+machine learning;calibration
+machine learning;SVM
+machine learning;régression sous contrainte
+machine learning;comaraison de méthodes
+R;divers
+divers;données manquantes
+divers;fouille de graphe
+divers;analyse de tests
+divers;deep learning
+R;base de R
+base de R;Rstudio
+base de R;importer
+base de R;manipuler les données
+base de R;concaténer
+R;visualiser
+visualiser;carte
+visualiser;graphique interactif
+visualiser;graphique
+visualiser;ggplot
+R;programmer
+programmer;faire une fonction
+programmer;calcul parallèle
+programmer;shiny
+R;outils avancés
+outils avancés;web scraping
+outils avancés;base de données
+outils avancés;data.table
+outils avancés;dplyr et tydiverse
