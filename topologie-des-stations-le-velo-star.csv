@@ -1,0 +1,84 @@
+id,nom,adresse_numero,adresse_voie,commune,latitude,longitude,id_correspondance,mise_en_service,nb_emplacements,id_proche₁,id_proche₂,id_proche₃,terminal_cb
+1,République,19,Quai Lamartine,Rennes,48.1100259201, -1.6780371631,15006,2009-06-22,30,2,11,10,true
+2,Mairie,12,Galerie du Théâtre,Rennes,48.11162394, -1.678756711,,2009-06-22,24,1,3,9,true
+3,Champ Jacquet,8,Rue du Champ Jacquet,Rennes,48.11276415, -1.680061726,,2009-06-22,24,2,5,1,false
+10,Musée Beaux-Arts,3,Avenue Jean Janvier,Rennes,48.10960131, -1.674080473,,2009-06-22,16,12,1,36,false
+12,TNB,1,Square de Kergus,Rennes,48.10774793, -1.673711188,,2009-06-22,28,10,16,11,false
+14,Laënnec,11,Boulevard René Théophile Hyacinthe Laënnec,Rennes,48.10684716, -1.665817007,,2009-06-22,16,35,15,12,false
+17,Charles de Gaulle,2,Cours des Alliés,Rennes,48.10511105, -1.677119338,15007,2009-06-22,24,16,18,11,true
+20,Pont de Nantes,32,Rue du Docteur Francis Joly,Rennes,48.10201473, -1.68401528,,2009-06-22,20,43,18,70,false
+22,Oberthur,4,Rue Gutenberg,Rennes,48.11354975, -1.661858016,,2009-06-22,20,44,35,42,false
+25,Office de Tourisme,2,Rue Le Bouteiller,Rennes,48.11029374, -1.683105558,,2009-06-22,10,24,1,2,true
+26,Les Lices,9,Rue de Juillet,Rennes,48.1127656, -1.685036859,,2009-06-22,20,27,5,3,false
+29,Jules Ferry,103,Rue d'Antrain,Rennes,48.12136902, -1.67115202,,2009-06-22,16,8,7,30,false
+33,Anatole France,3,Avenue du 41ème Régiment d'Infanterie,Rennes,48.11799934, -1.686465142,15004,2009-06-22,14,13,54,32,false
+41,Cimetière Est,78,Boulevard Villebois-Mareuil,Rennes,48.10435667, -1.650119865,,2009-09-14,18,42,40,71,false
+43,Cité Judiciaire,20,Rue du Papier Timbré,Rennes,48.10477144, -1.684109864,,2009-09-14,24,19,23,20,false
+44,Metz - Sévigné,28,Boulevard de Metz,Rennes,48.1159929, -1.658257802,,2009-09-14,16,22,42,30,false
+49,Beaulieu Diapason,,Allée Jules Noël,Rennes,48.1180141, -1.64293529,,2009-09-14,30,47,48,46,false
+52,Villejean-Université,,Place Recteur Henri Le Moal,Rennes,48.12107586, -1.704122004,15002,2009-09-14,26,56,53,58,true
+60,Cucillé,14,Avenue de Cucillé,Rennes,48.12878846, -1.698129434,,2009-09-14,25,55,52,39,false
+61,Jacques Cartier,155,Boulevard Jacques Cartier,Rennes,48.09753211, -1.674305789,15009,2009-09-14,24,45,62,17,false
+72,Cleunay,24,Rue Jules Vallès,Rennes,48.10420724, -1.712715676,,2009-09-14,26,74,73,31,false
+73,Géniaux,101,Rue de Lorient,Rennes,48.10892914, -1.70949212,,2009-09-14,15,38,28,72,false
+76,Monts d'Arrée,3,Rue Emile Bernard,Rennes,48.13670153, -1.666669611,,2009-09-14,14,77,79,78,false
+80,Painlevé,197,Rue de Fougères,Rennes,48.12299363, -1.66054712,,2009-09-14,18,30,78,44,false
+6,Hôtel Dieu,2,Rue de la Cochardière,Rennes,48.11759556, -1.677848572,,2009-06-22,26,4,5,8,false
+21,Les Halles,32,Rue de Nemours,Rennes,48.10762593, -1.68008507,,2009-06-22,16,24,11,19,false
+27,Horizons,6,Rue de Brest,Rennes,48.11206316, -1.688501828,,2009-06-22,14,26,34,24,false
+30,Guéhenno - Fougères,121,Rue de Fougères,Rennes,48.1198388, -1.6662274,,2009-06-22,16,7,29,80,false
+39,Pontchaillou Métro,,Chr Pontchaillou,Rennes,48.12148072, -1.692736796,15003,2009-06-22,28,54,33,32,false
+40,Pierre Martin,119,Rue Saint-Hélier,Rennes,48.10349855, -1.662322085,,2009-06-22,20,14,15,41,false
+47,Beaulieu Chimie,,Allée de Beaulieu,Rennes,48.11645831, -1.633874902,,2009-09-14,30,49,46,48,false
+58,La Harpe,2,Rue Doyen Denis Leroy,Rennes,48.12561867, -1.710314516,,2009-09-14,25,53,52,60,false
+63,Henri Fréville,24,Avenue Henri Fréville,Rennes,48.08733717, -1.674849492,15011,2009-09-14,24,64,62,68,true
+64,Italie,6,Avenue d'Italie,Rennes,48.08673805, -1.667567578,15012,2009-09-14,16,63,67,68,false
+68,Alma,24,Promenade Lofoten,Rennes,48.0841016, -1.6788926,,2009-09-14,20,63,64,69,false
+75,ZA Saint-Sulpice,304,Rue de Fougères,Rennes,48.13212931, -1.635197526,,2009-09-14,30,51,48,81,false
+81,Turmel,109,Boulevard de Vitré,Rennes,48.12247127, -1.651084974,,2009-09-14,16,80,44,46,false
+83,Ronceray,110,Rue de la Poterie,Rennes,48.09278305, -1.64046833,15015,2010-10-15,21,82,41,71,false
+84,Gares - Beaumont,22,Boulevard de Beaumont,Rennes,48.103832, -1.674006,15008,2014-05-28,24,15,45,16,true
+5,Sainte-Anne,16,Place Sainte-Anne,Rennes,48.11449999, -1.680984419,15005,2009-06-22,24,4,3,2,true
+9,Saint-Georges,21,Rue Victor Hugo,Rennes,48.11238529, -1.674416809,,2009-06-22,18,2,10,4,false
+18,Dalle Colombier,15,Place du Colombier,Rennes,48.10511992, -1.678680082,,2009-06-22,19,17,16,19,false
+28,Chèques Postaux,66,Mail François Mitterrand,Rennes,48.10887069, -1.693403624,,2009-06-22,22,31,34,24,false
+37,Auberge de Jeunesse,83,Rue de Saint-Malo,Rennes,48.12087602, -1.681875901,,2009-06-22,18,33,13,6,false
+42,Robidou,124,Avenue Sergent Maginot,Rennes,48.1099262529, -1.6594991532,,2009-09-14,20,35,44,46,false
+45,Gares Sud - Féval,19 B,Rue de Châtillon,Rennes,48.10225077, -1.673133314,,2009-09-14,20,15,16,84,false
+46,Plaine de Baud,,Avenue François Château,Rennes,48.1124881795, -1.6438615322,,2009-09-14,24,42,49,47,false
+48,Beaulieu Restau U,41,Avenue des Buttes de Coësmes,Rennes,48.1220476, -1.638368167,,2009-09-14,30,49,47,51,false
+51,Bouzat,20,Square Auguste Dupouy,Rennes,48.12873253, -1.635133691,,2009-09-14,18,75,48,81,false
+54,Pontchaillou Halte TER,,CHR Pontchaillou,Rennes,48.11918585, -1.69159743,,2009-09-14,24,39,33,32,false
+56,Berger,1,Avenue Gaston Berger,Rennes,48.1163137, -1.705097382,,2009-09-14,14,52,57,38,false
+70,Mermoz,189,Rue de Nantes,Rennes,48.09792539, -1.688143274,,2009-09-14,12,20,66,61,false
+71,Sainte-Thérèse,76,Boulevard Emile Combes,Rennes,48.09498595, -1.663731032,,2009-09-14,12,67,62,40,false
+78,Gros-Chêne,204,Avenue Général George S. Patton,Rennes,48.12679483, -1.665100916,,2009-09-14,18,77,79,76,false
+82,La Poterie,211,Rue de Vern,Rennes,48.08727692, -1.644125895,15015,2010-10-29,28,83,71,64,false
+4,Place Hoche,12,Place Hoche,Rennes,48.11507371, -1.677072612,,2009-06-22,24,5,6,9,false
+15,Gares - Solférino,18,Place de la Gare,Rennes,48.1041558, -1.671268,15008,2009-06-22,35,16,12,45,true
+16,Champs Libres,7,Cours des Alliés,Rennes,48.1055375, -1.674328158,,2009-06-22,24,17,15,12,true
+23,La Rotonde,2,Rue de Redon,Rennes,48.10665252, -1.686769954,,2009-06-22,20,43,24,19,false
+31,Voltaire,56,Boulevard Voltaire,Rennes,48.10524, -1.698107,,2009-06-22,16,28,23,74,false
+32,La Touche,64,Boulevard de Verdun,Rennes,48.11660778, -1.690943915,,2009-06-22,16,33,34,54,false
+34,Brest - Verdun,2,Boulevard de Verdun,Rennes,48.11301418, -1.693274277,,2009-06-22,16,27,32,28,false
+35,Pont de Châteaudun,65,Avenue Aristide Briand,Rennes,48.1102635711, -1.6644429003,,2009-06-22,20,36,14,42,false
+57,Atalante Champeaux,7,Rue Jules Maillard de la Gournerie,Rennes,48.11612208, -1.713728729,,2009-09-14,30,56,53,52,false
+67,Binquenais,24,Rue André Rouault,Rennes,48.09159372, -1.667320734,,2009-09-14,16,62,64,71,false
+74,De Lesseps,40,Rue Ferdinand de Lesseps,Rennes,48.10095764, -1.707085909,,2009-09-14,24,72,73,31,false
+77,Houx Cité U,2,Rue du Houx,Rennes,48.13052521, -1.663172649,,2009-09-14,16,78,79,76,false
+7,Fac de Droit,46,Rue Jean Guéhenno,Rennes,48.11817247, -1.670735466,,2009-06-22,26,30,29,8,false
+8,Rectorat,92,Rue d'Antrain,Rennes,48.1193762, -1.674489958,,2009-06-22,18,6,29,7,false
+11,Liberté,18 b,Boulevard de la Liberté,Rennes,48.10751404, -1.678163061,,2009-06-22,24,21,17,1,false
+13,Dinan,21,Rue Legraverend,Rennes,48.11721481, -1.68269744,,2009-06-22,16,33,5,6,false
+19,Plélo Colombier,1,Rue du Puits Mauger,Rennes,48.10589742, -1.68137423,,2009-06-22,18,21,43,18,false
+24,Place de Bretagne,3,Place de Bretagne,Rennes,48.1096206, -1.684018814,,2009-06-22,20,25,21,23,false
+36,Paul Bert,9,Avenue Aristide Briand,Rennes,48.11011517, -1.670039235,,2009-06-22,16,35,10,12,false
+38,Marbeuf,37,Rue Louis Guilloux,Rennes,48.11174897, -1.70207683,,2009-06-22,20,28,73,56,false
+53,J.F. Kennedy,36,Cours Président John Fitzgerald Kennedy,Rennes,48.1214671, -1.709932637,15001,2009-09-14,24,52,57,58,false
+55,Préfecture,1,Avenue de Cucillé,Rennes,48.12845329, -1.694031862,,2009-09-14,27,60,39,52,false
+59,Gayeulles Piscine,16,Avenue des Gayeulles,Rennes,48.13460942, -1.651576054,,2009-09-14,26,79,81,75,false
+62,Clemenceau,1,Avenue Henri Fréville,Rennes,48.09329151, -1.674116371,15010,2009-09-14,22,63,61,67,false
+66,Bréquigny Piscine,10,Boulevard Albert 1er,Rennes,48.08962083, -1.690241545,,2009-09-14,24,65,69,70,false
+69,Champs Manceaux,14,Rue Louis et René Moine,Rennes,48.09111379, -1.682284448,,2009-09-14,18,66,62,63,false
+85,La Courrouze,,Rue Claude Bernard,Rennes,48.098909, -1.694523,,2015-04-02,20,20,31,70,false
+86,Armorique,,Rue de la Taurellerie,Rennes,48.129754, -1.675788,,2016-02-16,24,78,76,77,false
