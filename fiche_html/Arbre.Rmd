@@ -1,0 +1,112 @@
+---
+title: "Arbre"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+# 1. Importer les données
+
+```{r}
+bank <- read.csv("https://r-stat-sc-donnees.github.io/bank-additional.csv",sep=";")
+```
+
+# 2. Construire et analyser l’arbre de classification
+```{r,message=FALSE,warning=FALSE}
+set.seed(5678)
+perm <- sample(nrow(bank),3000)
+bank.app <- bank[perm,]
+bank.test <- bank[-perm,]
+```
+
+# 3. Choisir la taille de l’arbre
+```{r,message=FALSE,warning=FALSE}
+library(rpart)
+bank.arbre1 <- rpart(y~.,data=bank.app,cp=0.02)
+bank.arbre1
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(rpart.plot)
+rpart.plot(bank.arbre1,main="Représentation de l'arbre")
+```
+
+```{r}
+bank.arbre2 <- rpart(y~.,data=bank.app,maxcompete=2,maxsurrogate=1)
+summary(bank.arbre2)
+```
+
+
+
+```{r}
+printcp(bank.arbre1)
+```
+
+```{r,message=FALSE,warning=FALSE}
+set.seed(1234)
+bank.arbre3 <- rpart(y~.,data=bank.app,cp=0.000001,minsplit=5)
+printcp(bank.arbre3)
+plotcp(bank.arbre3)
+```
+
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+cp_opt <- bank.arbre3$cptable %>% as.data.frame() %>%filter(xerror==min(xerror)) %>% select(CP) %>% max() %>% as.numeric()
+bank.arbre.fin <- prune(bank.arbre3,cp=cp_opt)
+rpart.plot(bank.arbre.fin,cex=0.5)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(visNetwork)
+visTree(bank.arbre.fin)
+```
+
+# 4. Faire de la prévision
+
+```{r,message=FALSE,warning=FALSE}
+predict(bank.arbre.fin,newdata=bank.test) %>% head(n=3)
+predict(bank.arbre.fin,newdata=bank.test,type="class") %>% head(n=3)
+
+```
+
+# 5. Estimer les performances de l’arbre
+```{r,message=FALSE,warning=FALSE}
+prev.class <- data.frame(large=predict(bank.arbre3,newdata=bank.test,type="class"),fin=predict(bank.arbre.fin,newdata=bank.test,type="class"),obs=bank.test$y)
+head(prev.class)
+prev.class %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+
+```{r, fig.height=6,fig.width=10}
+score <- data.frame(large=predict(bank.arbre3,newdata=bank.test)[,2],fin=predict(bank.arbre.fin,newdata=bank.test)[,2],obs=bank.test$y)
+library(plotROC)
+df.roc <- score  %>% gather(key=methode,value=score,large,fin)
+ggplot(df.roc)+aes(d=obs,m=score,color=methode)+geom_roc()+theme_classic()
+```
+
+```{r}
+df.roc %>% group_by(methode) %>% summarize(AUC=pROC::auc(obs,score)) 
+```
+
+# 6. Interpréter l’arbre
+
+```{r,message=FALSE,warning=FALSE}
+var.imp <- bank.arbre.fin$variable.importance
+nom.var <- substr(names(var.imp),1,3)
+nom.var[c(4,5)] <- c("co.c","co.p") #éviter les noms identiques
+var.imp1 <- data.frame(var=nom.var,score=var.imp)
+var.imp1$var <- factor(var.imp1$var,levels=nom.var)
+ggplot(var.imp1)+aes(x=var,y=score)+geom_bar(stat="identity")+theme_classic()
+```
+
+```{r,message=FALSE,warning=FALSE}
+bank.arbre.des <- rpart(y~.,data=bank.app,parms=list(loss=matrix(c(0,0.1,10,0),ncol=2)),cp=0.000001,minsplit=2)
+cp_opt_des <- bank.arbre.des$cptable %>% as.data.frame() %>% filter(xerror==min(xerror)) %>% select(CP) %>% max() %>% as.numeric()
+bank.arbre.fin.des <- prune(bank.arbre1,cp=cp_opt_des)
+prev.class1 <- prev.class %>% mutate(des=predict(bank.arbre.fin.des,newdata=bank.test,type="class"))
+prev.class1 %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+table(prev.class1$fin,prev.class1$obs)
+table(prev.class1$des,prev.class1$obs)
+```

@@ -1,0 +1,73 @@
+---
+title: "Comparaison de méthodes"
+author: "Husson et al."
+date: "6 septembre 2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+
+# 1. Importer les données
+
+```{r,message=FALSE,warning=FALSE}
+library(kernlab)
+data(spam)
+summary(spam[,56:58])
+```
+
+# 2. Découper en une partie apprentissage et une partie validation
+
+```{r}
+set.seed(1234)
+perm <- sample(4601,round(4601*.8))
+app <- spam[perm,]
+valid <- spam[-perm,]
+```
+
+# 3. Optimiser le(s) paramètre(s) de l’algorithme avec les fonctions prévues du package ou avec le package caret
+
+```{r,message=FALSE,warning=FALSE}
+library(glmnet)
+set.seed(123)
+optlasso <- cv.glmnet(as.matrix(app[,-58]),app[,58],family="binomial", nfold=10, type.measure="class")
+optlasso$lambda.min
+```
+
+```{r}
+prevlasso <- predict(optlasso,newx=as.matrix(valid[,-58]), type="class",s=c("lambda.min"))
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(caret)
+ctrl <- trainControl(method="cv",number=10,classProbs=TRUE)
+library(doParallel)        # pour paralléliser
+cl <- makePSOCKcluster(4)
+registerDoParallel(cl)     ## les clusters seront fermés en fin de programme
+set.seed(123)
+sel.mtry <- train(type~.,data=app,method="rf",trControl=ctrl, tuneGrid=data.frame(mtry=seq(1,51,by=10)), type.measure="class")
+stopCluster(cl)
+```
+
+```{r}
+prevforet <- predict(sel.mtry, valid)
+```
+
+```{r,message=FALSE,warning=FALSE}
+prev.methode <- data.frame(lasso=as.vector(prevlasso),foret=prevforet, obs=valid$type)
+library(tidyverse)
+prev.methode %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+
+# 4. Proposer un modèle final
+
+```{r}
+cl <- makePSOCKcluster(4)
+registerDoParallel(cl)     ## les clusters seront fermés en fin de programme
+ctrl <- trainControl(method="cv",number=10,classProbs=TRUE)
+set.seed(123)
+model_final <- train(type~.,data=spam,method="rf",trControl=ctrl, tuneGrid=data.frame(mtry=seq(1,51,by=10)), type.measure="class")
+stopCluster(cl)
+```
+

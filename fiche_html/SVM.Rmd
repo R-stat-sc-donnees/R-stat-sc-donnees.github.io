@@ -1,0 +1,98 @@
+---
+title: "SVM"
+author: "Husson et al."
+date: "6 septembre 2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+# 1. Importer les données
+
+```{r,message=FALSE,warning=FALSE}
+library(kernlab)
+data(spam)
+summary(spam[,56:58])
+```
+
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+valid <- spam[-perm,]
+```
+
+# 2. Construire et analyser un algorithme de SVM
+
+```{r,message=FALSE,warning=FALSE}
+mod.svm <- ksvm(type~.,data=app,kernel="vanilladot",C=1)
+mod.svm
+```
+
+# 3. Sélectionner les paramètres d’un SVM
+
+```{r}
+C <- c(0.1,1,10,100)
+degree <- c(1,2,3)
+scale <- 1
+sigma <- c(0.0001,0.001,0.01,0.1,1)
+```
+
+
+```{r,message=FALSE,warning=FALSE}
+library(caret)
+gr.poly <- expand.grid(C=C,degree=degree,scale=scale)
+ctrl <- trainControl(method="cv",number=3)
+set.seed(123)
+sel.poly <- train(type~.,data=app,method="svmPoly",trControl=ctrl,tuneGrid=gr.poly)
+sel.poly
+
+gr.radial <- expand.grid(C=C,sigma=sigma)
+set.seed(345)
+sel.radial <- train(type~.,data=app,method="svmRadial",trControl=ctrl,tuneGrid=gr.radial)
+sel.radial
+```
+
+```{r}
+mod.poly <- ksvm(type~.,data=app,kernel="polydot",kpar=list(degree=1,scale=1,offset=1),C=1,prob.model = TRUE)
+mod.radial <- ksvm(type~.,data=app,kernel="rbfdot",kpar=list(sigma=0.01),C=10,prob.model = TRUE)
+
+```
+
+# 4. Faire de la prévision
+
+```{r}
+prev.class.poly <- predict(mod.poly,newdata=valid)
+prev.class.radial <- predict(mod.radial,newdata=valid)
+prev.class.poly[1:10]
+prev.class.radial[1:10]
+```
+
+```{r}
+prev.prob.poly <- predict(mod.poly,newdata=valid,type="probabilities")
+prev.prob.radial <- predict(mod.radial,newdata=valid,type="probabilities")
+round(head(prev.prob.poly),3)
+```
+
+# 5. Estimer les performances de l’algorithme
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+prev.class <- data.frame(poly=prev.class.poly,radial=prev.class.radial,obs=valid$type)
+prev.class %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(plotROC)
+prev.prob <- data.frame(poly=prev.prob.poly[,2],radial=prev.prob.radial[,2],obs=valid$type)
+df.roc <- prev.prob %>% gather(key=Methode,value=score,poly,radial)
+ggplot(df.roc)+aes(d=obs,m=score,color=Methode)+geom_roc()+theme_classic()
+
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(pROC)
+df.roc %>% group_by(Methode) %>% summarize(AUC=pROC::auc(obs,score))
+```
+

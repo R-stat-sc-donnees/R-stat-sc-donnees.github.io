@@ -1,0 +1,37 @@
+---
+title: "K-means"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 1. Importer les données
+
+```{r}
+decath <- read.table("https://r-stat-sc-donnees.github.io/decathlon.csv", sep=";", dec=".", header=TRUE, row.names=1, check.names=FALSE)
+```
+
+# 2 et 3. Construire la Classification Ascendante Hiérarchique
+```{r,message=FALSE,warning=FALSE}
+set.seed(123)
+classe <- kmeans(scale(decath[,1:10]), centers = 4, nstart = 100)
+classe
+```
+
+# 4. Caractériser les classes
+
+```{r,message=FALSE,warning=FALSE}
+decath.comp <- cbind.data.frame(decath,classe=factor(classe$cluster))
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR)
+catdes(decath.comp, num.var = 14)
+```

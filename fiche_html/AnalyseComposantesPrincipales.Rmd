@@ -1,0 +1,77 @@
+---
+title: "Analyse en Composantes Principales"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+# 1. Importer les données
+
+```{r}
+decath <- read.table("https://r-stat-sc-donnees.github.io/decathlon.csv", 
+                     sep = ";", dec = ".", header = TRUE, row.names = 1, check.names = FALSE)
+summary(decath)
+```
+
+# 2 et 3. Paramètres de l'ACP
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR)
+res.pca <- PCA(decath, quanti.sup = 11:12, quali.sup = 13)
+```
+
+# 4. Choisir le nombre d’axes
+
+```{r,fig.width=6,fig.height=5}
+barplot(res.pca$eig[,2],names=paste("Dim",1:nrow(res.pca$eig)))
+```
+
+# 5. Analyser les résultats
+
+```{r,message=FALSE,warning=FALSE}
+summary(res.pca, ncp = 2, nbelements = 3)
+```
+
+```{r,message=FALSE,warning=FALSE}
+plot(res.pca, choix = "ind", habillage = 13, cex = 1.1,
+  select = "cos2 0.6", title = "Graphe des individus")
+```
+
+```{r,message=FALSE,warning=FALSE}
+# axes 3 et 4
+plot(res.pca, choix = "ind", habillage = 13, axes = 3:4, cex = 0.7)
+plot(res.pca, choix = "var", habillage = 13, axes = 3:4, new.plot = TRUE)
+```
+
+# 6. Décrire de façon automatique les principales dimensions de variabilité
+
+```{r,message=FALSE,warning=FALSE}
+dimdesc(res.pca, proba = 0.2)
+```
+
+# 7. Retour aux données brutes
+
+```{r,message=FALSE,warning=FALSE}
+round(scale(decath[,1:12]),2)
+```
+
+```{r,message=FALSE,warning=FALSE}
+round(cor(decath[1:12,1:12]),2)
+```
+
+# Factoshiny
+
+```{r,message=FALSE,warning=FALSE, eval = FALSE}
+library(Factoshiny)
+res.shiny <- PCAshiny(decath)
+```
+
+# Pour aller plus loin
+
+```{r,message=FALSE,warning=FALSE}
+plotellipses(res.pca)
+```
+

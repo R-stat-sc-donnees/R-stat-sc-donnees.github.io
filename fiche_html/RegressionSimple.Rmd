@@ -1,0 +1,88 @@
+---
+title: "Régression Simple"
+author: "Husson et al."
+date: "12 septembre 2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Importer les données
+
+```{r ozone}
+ozone <- read.table("https://r-stat-sc-donnees.github.io/ozone.txt",header=T)
+summary(ozone[,c("maxO3","T12")])
+```
+# 2. Représenter le nuage de points (xi, yi)
+
+```{r}
+plot(maxO3~T12,data=ozone,pch=15,cex=.5)
+```
+
+# 3. Estimer les paramètres
+
+```{r}
+reg.s <- lm(maxO3~T12,data=ozone)
+summary(reg.s)
+```
+
+
+```{r}
+names(reg.s)
+```
+
+```{r}
+reg.s$coef
+```
+
+```{r}
+coef(reg.s)
+```
+
+
+```{r}
+reg.ss.constante <- lm(maxO3~T12-1, data=ozone)
+```
+
+# 4. Tracer la droite de régression
+
+```{r}
+ plot(maxO3~T12,data=ozone,pch=15,cex=.5)
+ grillex <- seq(min(ozone[,"T12"]),max(ozone[,"T12"]),length=100)
+ grilley <- reg.s$coef[1]+reg.s$coef[2]*grillex
+ lines(grillex,grilley,col=2)
+```
+
+# 5. Analyser les résidus
+
+```{r}
+res.simple<-rstudent(reg.s)
+plot(res.simple,pch=15,cex=.5,ylab="Résidus",ylim=c(-3,3))
+abline(h=c(-2,0,2),lty=c(2,1,2))
+```
+
+# 6. Prévoir une nouvelle valeur
+
+```{r}
+ xnew <- 19
+ xnew <- as.data.frame(xnew)
+ colnames(xnew) <- "T12"
+ predict(reg.s,xnew,interval="pred")
+```
+
+```{r}
+grillex.df <- data.frame(grillex)
+dimnames(grillex.df)[[2]]<-"T12"
+ ICdte <- predict(reg.s, new=grillex.df, interval="conf", level=0.95)
+ ICprev <- predict(reg.s, new=grillex.df, interval="pred", level=0.95)
+ plot(maxO3~T12, data=ozone, pch=15, cex=.5)
+ matlines(grillex,cbind(ICdte, ICprev[,-1]), lty=c(1,2,2,3,3),
+col=c("black","red","red","blue","blue"))
+ legend("topleft", lty=3:2, col=c("blue","red"), c("prev","conf"))
+```
+

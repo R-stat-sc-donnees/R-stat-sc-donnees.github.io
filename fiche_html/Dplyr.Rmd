@@ -1,0 +1,96 @@
+---
+title: "Le package dplyr et le tidyverse"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 5.2.1 Le package dplyr
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+set.seed(1234)
+tbl <- tibble(group1 = rep(c("A", "B"), 5000),
+                group2 = rep(c("C", "D"), each = 5000),
+                value = rnorm(10000),
+                weight = sample(1:10, 10000, replace = TRUE))
+ tbl
+```
+
+```{r}
+tbl[1:2, ]
+tbl[c(1,5), ]
+tbl[, c("group1", "value")]
+```
+
+```{r}
+slice(tbl, 1:2)
+select(tbl, group1, value)
+```
+```{r,results='hide'}
+tbl[["value"]]
+pull(tbl, value)
+```
+
+```{r}
+tmp <- select(tbl, group1, weight)
+filter(tmp, weight > 9)
+filter(select(tbl, group1, weight), weight > 9)
+tbl %>% select(group1, weight) %>% filter(weight > 9)
+```
+
+# 5.2.2 Manipulation de tables
+
+```{r}
+tbl %>% select(mygr = group1, myval = value) %>% slice(1:2)
+tbl %>% mutate(tval = trunc(value)) %>% slice(1:2)
+tbl <- tbl %>% mutate(tvalue = trunc(value), rvalue = round(value,2))
+tbl %>% mutate(tvalue = tvalue + 10)
+tbl %>% select(-rvalue)
+tbl %>% mutate(rvalue = NULL)
+tbl %>% mutate(weight = if_else(group1 %in% "A",
+                                weight * 10L, weight)) %>% slice(1:2)
+tbl %>% summarize(sum(value))
+tbl %>% summarize(somme = sum(value), moyenne = mean(value))
+tbl %>% arrange(desc(weight)) %>% slice(1:2)
+tbl %>% group_by(group1, group2) %>% summarize(sum(value))
+tbl %>% group_by(pop = group1, poids = weight > 5) %>%
+  summarize(somme = sum(value))
+tbl %>% group_by(group1) %>% mutate(mean_group1 = mean(value))
+tbl %>% filter(weight > 5) %>% group_by(group1, group2) %>%
+  summarize(N = n()) %>% arrange(desc(N))
+```
+
+# 5.2.3 Pour aller plus loin
+
+```{r}
+setwd("C:/Users/husson/Dropbox/Rpourlastatetladatascience/donnees")
+xlsx <- "chanson-française.xlsx"
+readxl::excel_sheets(xlsx)
+chanteurs <- readxl::read_excel(xlsx, sheet="chanteurs")
+albums <- readxl::read_excel(xlsx, sheet="albums")
+chanteurs
+albums
+left_join(chanteurs, albums, by=c("prenom", "nom"))
+```
+
+```{r}
+albums %>%
+  filter(annee>1968) %>%
+  group_by(prenom, nom) %>%
+  summarise(post_soixante_huit=n()) %>%
+  left_join(chanteurs, by=c("prenom", "nom")) %>%
+  select(prenom, nom, naissance, mort, post_soixante_huit)
+```
+
+```{r}
+tbl %>% group_by(group1) %>% select(value, weight) %>% nest() %>%
+  mutate(data = map(data, ~ map_df(., mean))) %>% unnest()
+```

@@ -1,0 +1,287 @@
+---
+title: "Correction des exercices du chapitre 2"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+## Exercice 2.1 : Importation robuste
+
+
+1. Importation sous forme de vecteur de caractères (la première ligne
+  contient des caractères, donc ce type est obligatoire):
+	
+```{r,message=FALSE,warning=FALSE}
+vecteur <- scan("https://r-stat-sc-donnees.github.io/donnees.csv",what="",sep=";")
+vecteur
+```
+2. Récupération des noms de colonnes qui correspondent aux coordonnées 2 à 5:
+```{r,message=FALSE,warning=FALSE}
+nomcol <- vecteur[2:5]
+nomcol
+```
+3. Changement des virgules en points:
+```{r,message=FALSE,warning=FALSE}
+vecteur <- gsub(",",".",vecteur) 
+```
+
+4. Matrice brute des données (avec noms des lignes et des colonnes):
+```{r,message=FALSE,warning=FALSE}
+matbrut <- matrix(vecteur,nrow=4,ncol=5,byrow=TRUE)
+matbrut
+```
+
+5. Nom des lignes (première colonne de *matbrut*, sauf la première coordonnée):
+```{r,message=FALSE,warning=FALSE}
+nomlign <- matbrut[-1,1]
+nomlign
+donnees <- matbrut[-1,-1]
+```
+
+6. Data-frame des données avec le nom des lignes et des colonnes
+```{r,message=FALSE,warning=FALSE}
+essai <- data.frame(donnees)
+summary(essai)
+donnees <- data.frame(donnees)
+colnames(donnees) <- nomcol
+rownames(donnees) <- nomlign
+summary(donnees)
+```
+Les trois premières variables sont des facteurs, il faut donc les
+convertir en numérique:
+```{r,message=FALSE,warning=FALSE}
+donnees[,1] <- as.numeric(as.character(donnees[,1]))
+donnees[,2] <- as.numeric(as.character(donnees[,2]))
+donnees[,3] <- as.numeric(as.character(donnees[,3]))
+summary(donnees)
+```
+
+## Exercice 2.2 Importation
+```{r,message=FALSE,warning=FALSE}
+test1 <- read.table("https://r-stat-sc-donnees.github.io/test1.csv",dec=",",sep=";",header=TRUE)
+summary(test1)
+test1prn <- read.table("https://r-stat-sc-donnees.github.io/test1.prn",header=TRUE)
+summary(test1prn)
+test2 <- read.table("https://r-stat-sc-donnees.github.io/test2.csv",sep=";",header=TRUE,na.strings="")
+summary(test2)
+test3 <- read.table("https://r-stat-sc-donnees.github.io/test3.csv",sep=";",header=TRUE,na.strings=".")
+summary(test3)
+```
+
+## Exercice 2.3 Importation et format date
+
+1. Importons le jeu de données en débutant à la troisième ligne (on saute les deux premières avec *skip=2*):
+```{r,message=FALSE,warning=FALSE}
+ski <- read.table("https://r-stat-sc-donnees.github.io/test4.csv", sep="|", skip=2, header=TRUE,
+     row.names=1)
+summary(ski)
+```
+2. Utilisons le format *Date* pour la dernière variable. Le format *POSIXct* pourrait être intéressant si la date comportait une heure, ce qui n'est pas le cas ici.
+```{r,message=FALSE,warning=FALSE}
+ski2<-read.table("https://r-stat-sc-donnees.github.io/test4.csv",sep="|",skip=2,header=TRUE,
+     row.names=1,colClasses=c("character","numeric",
+     "factor","Date"))
+summary(ski2)
+```
+
+## Exercice 2.4 : Importation et fusion
+
+1. Importations des jeux de données:
+```{r,message=FALSE,warning=FALSE}
+etat1 <- read.table("https://r-stat-sc-donnees.github.io/etat1.csv",sep=";",header=TRUE)
+etat2 <- read.table("https://r-stat-sc-donnees.github.io/etat2.csv",sep=",",header=TRUE)
+etat3 <- read.table("https://r-stat-sc-donnees.github.io/etat3.csv",row.names=1,header=TRUE)
+```
+2. Fusion par clef (variable commune *region* pour *etat1* et *etat2*,
+puis variable commune *etat* pour *etat2* et le tableau précédent):
+```{r,message=FALSE,warning=FALSE}
+etat13 <- merge(etat1,etat3,by="region")
+etat123 <- merge(etat2,etat13,by="etat")
+head(etat13)
+head(etat123)
+```
+
+## 2.5 Exercice : Fusion et sélection
+
+1. Ouvrir les deux fichiers sous excel (ou openoffice),
+les sauvegarder sous format texte *.csv* (avec
+openoffice, choisir comme séparateur de champs *;*). Importer
+ensuite ces deux fichiers grâce à:
+```{r,message=FALSE,warning=FALSE}
+fusion1 <- read.table("https://r-stat-sc-donnees.github.io/fusion1.csv",sep=";",dec=",",header=TRUE)
+summary(fusion1)
+fusion2 <- read.table("https://r-stat-sc-donnees.github.io/fusion2.csv",sep=";",dec=",",header=TRUE)
+summary(fusion2)
+```
+2. Conservation de deux colonnes pour chaque tableau puis création du data-frame:
+```{r,message=FALSE,warning=FALSE}
+fusion1 <- fusion1[,c("yhat1","yhat3")]
+fusion2 <- fusion2[,c("Rhamnos","Arabinos")]
+don <- cbind(fusion1,fusion2)
+```
+3. Création des deux variables et ajout de celles-ci au data-frame *don*:
+```{r,message=FALSE,warning=FALSE}
+yres1 <- don[,"yhat1"]-don[,"Rhamnos"]
+yres2 <- don[,"yhat3"]-don[,"Arabinos"]
+don <- cbind.data.frame(don,yres1,yres2)
+names(don)
+head(don)
+```
+
+## Exercice 2.6 : Ventilation
+
+1. Calcul des fréquences :
+```{r,message=FALSE,warning=FALSE}
+tabl <- table(Xqual)
+tabl/sum(tabl)
+```
+
+2. Affichage des modalités dont l'effectif est inférieur à 5 %:
+```{r,message=FALSE,warning=FALSE}
+modalites <- levels(Xqual)
+selecti <- (tabl/sum(tabl))<0.05
+modalites[selecti]
+```
+3. Fréquences des modalités sans la modalité *D*:
+```{r,message=FALSE,warning=FALSE}
+lesquels <- modalites[!selecti]
+prov <- factor(Xqual[(Xqual%in%lesquels)],levels=lesquels)
+prov <- table(prov)
+proba <- prov/sum(prov)
+proba
+```
+4. Sélection des individus qui prennent la modalité *D*,
+  tirage aléatoire (ventilation) de leur nouvelle modalité. Le
+  facteur *Xqual* possède des modalités qui sont décrites dans
+  *levels* mais qui ne sont plus représentées (c'est-à-dire les
+  modalités que l'on a ventilées, ici la modalité *D*). La
+  dernière ligne permet de remettre à jour la liste des niveaux du
+  facteur.
+```{r,message=FALSE,warning=FALSE}
+for (j in modalites[selecti]) {
+   ## tirages dans les modalités au hasard et remplacement
+   if (length(lesquels)==1) stop("1 seule modalite\n") else
+   Xqual[Xqual==j] <- sample(lesquels,sum(Xqual==j),
+      replace=TRUE, prob = proba)
+ }
+Xqualvent <- factor(as.character(Xqual))
+Xqualvent
+```
+
+## Exercice 2.7 : Ventilation sur facteur ordonné
+
+1. Calcul des fréquences:
+```{r,message=FALSE,warning=FALSE}
+Xqual <- factor(c(rep("0-10",1),rep("11-20",3),rep("21-30",5),
+     rep("31-40",20),rep("41-50",2),rep("51-60",2),rep("61-70",1),
+     rep("71-80",31),rep("+ de 80",20)))
+tabl <- table(Xqual)
+tabl/sum(tabl)
+```
+2. Affichage des modalités à ventiler
+```{r,message=FALSE,warning=FALSE}
+p <- 0.05
+selecti <- (tabl/sum(tabl))<p
+mod <- levels(Xqual)
+mod[selecti]
+```
+3. Trouvons les numéros des modalités à ventiler. Ensuite tant
+qu'il existe une modalité dont l'effectif est inférieur à  5 %, il
+aut ventiler (et supprimer cette modalité de la liste des niveaux):
+c'est l'objet de la boucle *while*.
+```{r,message=FALSE,warning=FALSE}
+numero <- which(selecti)
+while(any((tabl/sum(tabl))<p)) {
+   ## prenons la premiere modalite dont l'effectif est trop faible
+   j <- which(((tabl/sum(tabl))<p))[1]
+   K <- length(mod)  # effectif des modalites mis à jour
+   ## fusion avec modalite d'apres ou d'avant pour la derniere
+   if (j<K) {
+     if ((j>1)&(j<K-1)) {
+       levels(Xqual) <- c(mod[1:(j-1)],paste(mod[j],
+        mod[j+1],sep="."),paste(mod[j],mod[j+1],sep="."),
+        mod[j+2:K])}
+     if (j==1) {
+       levels(Xqual) <- c(paste(mod[j],mod[j+1],sep="."),
+       paste(mod[j],mod[j+1],sep="."),mod[j+2:K]) }
+     if (j==(K-1))  {
+       levels(Xqual) <- c(mod[1:(j-1)],paste(mod[j],
+       mod[j+1],sep="."),paste(mod[j],mod[j+1],sep=".")) }
+   } else {
+     levels(Xqual) <- c(mod[1:(j-2)],paste(mod[j-1],
+      mod[j],sep="."),paste(mod[j-1],mod[j],sep="."))
+   }
+   tabl <- table(Xqual) ## mise à jour de la table
+   mod <- levels(Xqual)             # et des modalites
+}
+Xqual
+```
+
+## Exercice 2.8 Du tableau croisé au tableau de données
+
+1. La création d'une table de contingence peut
+simplement se faire par la création de la matrice:
+```{r,message=FALSE,warning=FALSE}
+conting <- matrix(c(2,1,3,0,0,4),2,3)
+colnames(conting) <- c("Ang","Mer","Tex")
+rownames(conting) <- c("Faible","Forte")
+```
+2. La matrice *conting* n'est pas un type *table*. Il lui
+manque des attributs. Aussi l'opération inverse simple (grâce à
+*as.data.frame*) n'est pas possible directement. Une solution consiste à ajouter les attributs à cette matrice. Plus simplement nous allons constituer ce tableau à la main:
+```{r,message=FALSE,warning=FALSE}
+tabmat <- matrix("",length(conting),3)
+tabmat[,3] <- as.vector(conting)
+tabmat[,2] <- rep(rownames(conting),ncol(conting))
+tabmat[,1] <- rep(colnames(conting),each=nrow(conting))
+```
+
+3. Mise en place du data-frame *tabframe*. La colonne 3, qui est transformée en facteur par la fonction *dataframe* doit être transformée en numérique. Ensuite, l'effectif total et le nombre de facteur sont calculés:
+```{r,message=FALSE,warning=FALSE}
+tabframe <- data.frame(tabmat)
+tabframe[,3] <- as.numeric(as.character(tabframe[,3]))
+tabframe
+n <- sum(tabframe[,3])
+nbefac <- ncol(tabframe)-1
+```
+4. Création de la matrice *tabcomplet* et du compteur :
+```{r,message=FALSE,warning=FALSE}
+tabcomplet <- matrix("",n,nbefac)
+iter <- 1
+```
+5. Sur les deux premières lignes, nous opérons la boucle sur toutes
+  les lignes du tableau *tabframe* et le contrôle de l'effectif
+  (non nul). Ensuite, nous répétons autant de fois que l'effectif le
+  demande l'affectation des modalités (donc pas la dernière colonne de
+  *tabmat* qui contient les effectifs) dans le nouveau
+  tableau. L'indice des lignes de ce dernier est géré par le compteur
+  *iter*.
+```{r,message=FALSE,warning=FALSE}
+for (i in 1:nrow(tabframe)) {
+   if (tabframe[i,3]>0) {
+     for (j in 1:tabframe[i,3]) {
+       tabcomplet[iter,] <- tabmat[i,-ncol(tabframe)]
+       iter <- iter+1
+     }
+   }
+ }
+data.frame(tabcomplet)
+```
+La matrice *tabmat* est utilisée dans l'affectation à la ligne de
+*tabcomplet*. L'affectation directe d'une ligne du data-frame
+n'est pas possible. En effet, un data-frame est une liste et une ligne
+d'un data-frame aussi et il est impossible d'affecter une liste dans
+une ligne de matrice, qui, elle, est un vecteur.

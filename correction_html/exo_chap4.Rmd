@@ -1,0 +1,129 @@
+---
+title: "Correction des exercices du chapitre 4"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Exercice 4.1 : Factorielle
+1. Construction de la fonction factorielle avec la fonction *prod*:
+```{r,message=FALSE,warning=FALSE}
+factorielle <- function(n) {
+  if (n<0) stop("l'entier doit être strictement positif")
+  if (n==0) return(1)
+  if (floor(n)!=n) warning(paste("arrondi de",n,"en",floor(n)))
+  resultat <- prod(1:n)
+  return(resultat)
+}
+```
+2. Construction de la fonction factorielle avec une boucle *for*:
+```{r,message=FALSE,warning=FALSE}
+factorielle <- function(n) {
+  if (n<0) stop("l'entier doit être strictement positif")
+  if (n==0) return(1)
+  if (floor(n)!=n){
+    warning(paste("arrondi de",n,"en",floor(n)))
+    n <- floor(n)
+  }
+  resultat <- 1
+  for (i in 1:n) resultat <- resultat*i
+  return(resultat)
+}
+factorielle(5)
+factorielle(4.23)
+```
+## Exercice 4.2 : Ventilation
+
+1. Construisons la fonction de ventilation:
+```{r,message=FALSE,warning=FALSE}
+ventilation <- function(Xqual,p=0.05) {
+  if (!is.factor(Xqual)) stop("Xqual doit etre un facteur \n")
+  modalites <- levels(Xqual)
+  if (length(modalites)<=1) stop("pas assez de niveaux \n")
+  tabl <- table(Xqual)
+  selecti <- (tabl/sum(tabl))<p
+  if (!any(selecti)) return(Xqual) else {
+   lesquels <- modalites[!selecti]
+   prov <- factor(Xqual[(Xqual%in%lesquels)],levels=lesquels)
+   prov <- table(prov)
+   proba <- prov/sum(prov)
+   for (j in modalites[selecti]) {
+    ## tirages dans les modalites au hasard et remplacement
+    if (length(lesquels)==1){
+     warning("1 seule modalite\n")
+     Xqual[Xqual==j]<-lesquels
+    } else Xqual[Xqual==j]<-sample(lesquels,sum(Xqual==j),
+             replace=TRUE,prob=proba)
+   }
+   Xqualvent <- factor(as.character(Xqual))
+  }
+  return(Xqualvent)
+ }
+```
+2. Nous appliquons la fonction de la question précédente à chaque colonne du tableau qui est un facteur:
+```{r,message=FALSE,warning=FALSE}
+ventil.tab <- function (tab, seuil=0.05) {
+ for (i in 1:ncol(tab)) {
+  if (is.factor(tab[,i])) tab[,i]<-ventilation(tab[,i],p=seuil)
+ }
+ return(tab)
+}
+```
+
+## Exercice 4.3 : Ventilation sur facteur ordonné
+
+1. La fonction est identique ou presque à ce qui a été vu dans la correction de l'exercice 2.
+Nous ajoutons la sortie (*return*) et quelques contrôles :
+```{r,message=FALSE,warning=FALSE}
+ventilation.ordonnee <- function(Xqual,p=0.05) {
+  if (!is.ordered(Xqual)) stop("Xqual doit etre un ordonne \n")
+  modalites <- levels(Xqual)
+  if (length(modalites)<=1) stop("pas assez de niveaux \n")
+  tabl <- table(Xqual)
+  selecti <- (tabl/sum(tabl))<p
+  if (!any(selecti)) return(Xqual) else {
+    numero <- which(selecti)
+    while(any((tabl/sum(tabl))<p)) {
+      Xqual[,i] <- ventilation(Xqual[,i])
+   }
+ }
+ return(Xqual)
+}
+```
+2. Nous appliquons la fonction de la question précédente à chaque colonne du tableau qui est un facteur ordonné:
+```{r,message=FALSE,warning=FALSE}
+ventil.ordonnee.tab <- function (tab, seuil=0.05) {
+ for (i in 1:ncol(tab)) {
+  if (is.ordered(tab[,i])) tab[,i]<-ventilation.ordonnee(tab[,i],seuil)
+ }
+ return(tab)
+}
+```
+
+## Exercice 4.4 : Parallélisation
+
+```{r}
+max_inc <- function(seq) {
+dseq <- seq[-1] > seq[-length(seq)]; cur_l <- 1+dseq[1]; max_l <- cur_l
+for (i in 1:(length(dseq)-1)) {
+if (dseq[i] && (dseq[i] == dseq[i+1])) {
+cur_l <- cur_l + 1;
+} else { cur_l <- 1+dseq[i+1] }
+max_l <- max(cur_l, max_l)
+}
+return(max_l)
+}
+```
+

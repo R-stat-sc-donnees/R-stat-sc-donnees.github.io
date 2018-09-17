@@ -1,0 +1,64 @@
+---
+title: "Classification Ascendante Hiérarchique"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 1. Importer les données
+
+```{r}
+decath <- read.table("https://r-stat-sc-donnees.github.io/decathlon.csv", sep=";", dec=".", header=TRUE, row.names=1, check.names=FALSE)
+```
+
+# 2 et 3. Construire la Classification Ascendante Hiérarchique
+```{r,message=FALSE,warning=FALSE}
+library(cluster)
+classif <- agnes(scale(decath[,1:10]),method="ward")
+plot(classif,xlab="Individu",which.plot=2,main="Dendrogramme")
+```
+
+# 4. Couper l’arbre de classification
+
+```{r,message=FALSE,warning=FALSE}
+classif2 <- as.hclust(classif)
+plot(rev(classif2$height),type = "h", ylab = "hauteurs")
+```
+```{r}
+classe <- cutree(classif, k = 4)
+```
+
+# 5. Caractériser les classes
+
+```{r,message=FALSE,warning=FALSE}
+decath.comp <- cbind.data.frame(decath,classe=as.factor(classe))
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR)
+catdes(decath.comp, num.var = 14)
+```
+
+```{r}
+classif <- hclust(dist(scale(decath[,1:10])), method = "ward.D2")
+```
+
+# Pour aller plus loin
+
+```{r}
+res.pca<-PCA(decath,quanti.sup=11:12,ncp=8,quali.sup=13,graph=F)
+res.hcpc<-HCPC(res.pca,consol=FALSE,nb.clust=4)
+```
+
+```{r}
+res.hcpc$desc.var
+res.hcpc$desc.axes
+res.hcpc$desc.ind
+```

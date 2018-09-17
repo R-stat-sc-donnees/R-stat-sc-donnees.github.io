@@ -1,0 +1,123 @@
+---
+title: "Fouille de graphe"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+
+# 1. Importer le graphe
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(igraph)
+mis_graph <- read_graph("https://r-stat-sc-donnees.github.io/lesmiserables.gml", format = "gml")
+mis_graph
+```
+
+```{r,results = "hide",message=FALSE,warning=FALSE}
+vcount(mis_graph)
+```
+
+```{r,results = "hide",message=FALSE,warning=FALSE}
+ecount(mis_graph)
+```
+
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+V(mis_graph)
+E(mis_graph)
+mis_graph[1:5, 1:5]
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+graph_from_adjacency_matrix(mis_graph[], mode = "undirected")
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+as_long_data_frame(mis_graph)[1:5,]
+```
+
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+graph_from_data_frame(as_long_data_frame(mis_graph), directed = FALSE)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+don <- read.table("https://r-stat-sc-donnees.github.io/couverture.csv",
+    header=TRUE,sep=";",fileEncoding="UTF-8")
+don[1:6,]
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+graph_couv <- graph_from_edgelist(as.matrix(don))
+```
+
+
+# 2. Visualiser le graphe
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+plot(mis_graph)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+plot(mis_graph, layout = layout.kamada.kawai)
+```
+
+# 3. Calculer des indices de centralité
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+is_connected(mis_graph)
+graph.density(mis_graph)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+centrality <- degree(mis_graph)
+plot(mis_graph, layout = layout.kamada.kawai,
+     vertex.size = 4*sqrt(centrality))
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+centrality2 <- betweenness(mis_graph, directed = FALSE)
+plot(mis_graph, layout = layout.kamada.kawai,
+vertex.size = 1*sqrt(centrality2))
+```
+
+# 4. Déterminer des classes
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+group <- membership(cluster_edge_betweenness(mis_graph))
+plot(mis_graph, layout = layout.kamada.kawai,
+     vertex.color = group)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+plot(mis_graph, layout = layout.kamada.kawai, vertex.size = 4*sqrt(centrality), vertex.color = group)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+Lap <- embed_laplacian_matrix(mis_graph, no = 6, which = "sa", scaled = FALSE)
+set.seed(123)
+resspectral <- kmeans(Lap$X[ ,-1], centers = 6, nstart = 1)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+plot(mis_graph, vertex.size = 5, vertex.label = NA, vertex.color = resspectral$cluster, vertex.frame.color = resspectral$cluster)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+A <- as.matrix(mis_graph[]) 
+D <- diag(rowSums(A))
+L <- D - A
+LR <- svd(L)$u[,76:71]
+resspectral <- kmeans(LR, centers = 6, nstart = 1)
+```
+
+# Pour aller plus loin
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+sample_gnm(vcount(mis_graph), ecount(mis_graph))
+```
+

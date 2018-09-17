@@ -1,0 +1,159 @@
+---
+title: "Correction des exercices du chapitre 5"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+## Exercice 5.1 : Les prénoms aux USA
+
+1. Commençons par une solution en R de base
+```{r,message=FALSE,warning=FALSE}
+library(babynames)
+
+babynames2000 <- babynames[babynames$year==2000,]
+babynames2000_split <- split(babynames2000, babynames2000$sex)
+babynames2000_split_top10 <- lapply(babynames2000_split, function(df) {df[order(df$n, decreasing = TRUE)[1:10],]})
+babynames2000_top10 <- do.call(rbind, babynames2000_split_top10)
+babynames2000_top10
+```
+Avec data.table, on peut faire
+```{r,message=FALSE,warning=FALSE}
+library(data.table)
+babynames_dt <- data.table(babynames)
+babynames2000_top10_dt <- babynames_dt[year == 2000,.SD[order(n, decreasing = TRUE)[1:10],], by = sex]
+babynames2000_top10_dt
+```
+Enfin avec dplyr,
+```{r,message=FALSE,warning=FALSE}
+library(dplyr)
+babynames_tbl <- babynames
+babynames2000_top10_tbl <- babynames_tbl %>%
+  filter(year == 2000) %>% 
+  group_by(sex) %>%
+  top_n(10, n) %>%
+  arrange(desc(n), .by_group = TRUE)
+babynames2000_top10_tbl      
+```
+2. De même,
+```{r,message=FALSE,warning=FALSE}
+      babynames_evo <- merge(babynames2000_top10[,c("sex", "name")],
+                       babynames)
+
+babynames_evo_dt <-
+  babynames_dt[babynames2000_top10_dt[,c("sex", "name")],
+            , on = c("sex", "name")]
+
+babynames_evo_tbl <- left_join(babynames2000_top10_tbl %>% select(sex, name),
+          babynames_tbl)
+```
+
+3. Ici, on peut par exemple faire
+```{r,message=FALSE,warning=FALSE,results='hide'}
+      babynames_split <- split(babynames,
+                            list(babynames$sex,
+                                 babynames$year))
+babynames_split_prop <- lapply(babynames_split,
+                               function(df) {
+                                 df <- df[order(df$prop, decreasing = TRUE)[1:10],]
+                                 data.frame(year = df$year[[1]], sex = df$sex[[1]], prop_tot = sum(df$prop))
+                               })
+babynames_prop <- do.call(rbind, babynames_split_prop)
+babynames_prop
+
+babynames_prop_dt <- babynames_dt[, .SD[order(prop, decreasing = TRUE)[1:10],],
+                                  by = c("sex", "year")][, .(prop_tot = sum(prop)), by = c("sex", "year")]
+babynames_prop_dt
+
+babynames_prop_tbl <- babynames %>%
+  group_by(sex, year) %>%
+  top_n(10, prop) %>%
+  summarize(prop_tot = sum(prop))
+babynames_prop_tbl
+```
+
+4. Pour cette partie, on peut utiliser le package
+*MonetDBlite* qui est une alternative avantageuse à
+*RSqlLite*. Pour simuler la base à distance, on commence par
+      copier notre table:
+```{r,message=FALSE,warning=FALSE,results='hide'}
+library(MonetDBLite)
+library(DBI)
+
+con <- dbConnect(MonetDBLite())
+dbWriteTable(con, name = "babynames", 
+babynames, overwrite = TRUE)
+```
+On peut alors lancer des requêtes SQL avec *dbGetQuery*:
+```{r,message=FALSE,warning=FALSE}
+dbGetQuery(con,
+           'SELECT * FROM
+           (SELECT *, RANK() OVER (PARTITION BY "sex" ORDER BY "n" DESC) as rank  FROM  babynames WHERE ("year" = 2000)) as TMP
+           WHERE rank <= 10')
+
+dbGetQuery(con,
+           'WITH babynames_top2000 AS
+           (SELECT * 
+           FROM
+           (SELECT *, RANK() OVER (PARTITION BY "sex" ORDER BY "n" DESC) as rank  FROM  babynames WHERE ("year" = 2000)) as TMP
+           WHERE rank <= 10)
+           
+           SELECT babynames."year" as "year",
+                  babynames.sex as sex,
+                  babynames.name as name,
+                  babynames.n as n,
+                  babynames.prop as prop
+           FROM 
+           babynames_top2000
+           LEFT JOIN 
+           babynames ON (babynames_top2000.sex = babynames.sex AND babynames_top2000.name = babynames.name)')
+
+dbGetQuery(con,
+           'WITH babynames_top AS
+           (SELECT * 
+           FROM
+           (SELECT *, RANK() OVER (PARTITION BY sex,  "year" ORDER BY n DESC) as rank  FROM  babynames) as TMP
+           WHERE rank <= 10)
+           
+           SELECT "year", sex, SUM(prop) as prop_tot FROM
+           babynames_top 
+           GROUP BY "year", sex')
+```
+
+Une alternative est l'utilisation du package *dbplyr*:
+
+```{r,message=FALSE,warning=FALSE}
+library(dbplyr)
+babynames_sql <- tbl(con, "babynames")
+
+babynames2000_top10_sql <- babynames_sql %>%
+  filter(year == 2000) %>% 
+  group_by(sex) %>%
+  top_n(10, n) %>%
+  arrange(sex, desc(n))
+
+babynames2000_top10_sql %>% collect()
+
+
+babynames_evo_sql <- left_join(babynames2000_top10_sql %>% select(sex, name),
+                               babynames_sql)
+babynames_evo_sql %>% collect()
+
+babynames_prop_sql <- babynames_sql %>%
+  group_by(sex, year) %>%
+  top_n(10, prop) %>%
+  summarize(prop_tot = sum(prop))
+babynames_prop_sql %>% collect()  
+```

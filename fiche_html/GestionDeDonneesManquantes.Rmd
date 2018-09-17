@@ -1,0 +1,113 @@
+---
+title: "Gestion de données manquantes"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+
+# 1. Visualiser le dispositif de données manquantes
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+don <- read.table("https://r-stat-sc-donnees.github.io/ozoneNA.csv",header=TRUE,sep=";",row.names=1)
+nrow(na.omit(don))
+```
+
+```{r,results = "hide",message=FALSE,warning=FALSE}
+library(VIM)
+res<-summary(aggr(don,sortVar=TRUE))$combinations
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+matrixplot(don,sortby = 2)
+marginplot(don[,c("T9","maxO3")])
+```
+```{r,results="hide",message=FALSE,warning=FALSE}
+tabNA <- matrix("p",nrow=nrow(don),ncol=ncol(don))
+tabNA[is.na(don)] <- "a"
+dimnames(tabNA) <- dimnames(don)
+library(FactoMineR)
+res.mca <- MCA(tabNA, graph=FALSE) 
+plot(res.mca, invisible="ind")
+```
+
+# 2. Imputation simple
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(missForest)
+missForest(don)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(missMDA)
+nb <- estim_ncpPCA(don)
+imp <- imputePCA(don,ncp=nb$ncp)
+imp$completeObs[1:3,1:8] # jeu imputé
+```
+
+# 3. Imputation multiple
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(mice)
+imp.mice <- mice(don,m=100,defaultMethod="norm.boot")
+
+library(Amelia)
+res.amelia <- amelia(don,m=100)
+
+library(missMDA)
+nb <- estim_ncpPCA(don)
+impMI <- MIPCA(don,ncp=nb$ncp,nboot=100)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+compare.density(res.amelia, var = "T12")
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+plot(impMI, choice= "ind.supp")
+plot(impMI, choice= "var")
+```
+
+# 4. Modélisation avec données manquantes
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+set.seed(1234)
+imp <- mice(don, m=100, defaultMethod="norm.boot", printFlag=FALSE) 
+res.lm.mice <- with(imp, lm(maxO3 ~ T9+T12+T15+Ne9+Ne12+Ne15+Vx9+Vx12+Vx15+maxO3v))
+```
+
+```{r,message=FALSE,warning=FALSE}
+res.mi <- MIPCA(don, nboot=100) 
+imp <- prelim(res.mi, don)
+res.lm <- with(imp,
+lm(maxO3 ~ T9+T12+T15+Ne9+Ne12+Ne15+Vx9+Vx12+Vx15+maxO3v))
+```
+
+```{r,message=FALSE,warning=FALSE}
+resDF <- lapply(res.amelia$imputations, as.data.frame) 
+res.lm <- lapply(resDF, lm,
+formula="maxO3~ T9+T12+T15+Ne9+Ne12+Ne15+Vx9+Vx12+Vx15+maxO3v") 
+res.lm <- as.mira(res.lm)
+```
+
+```{r,message=FALSE,warning=FALSE}
+pool.res <- pool(res.lm.mice)
+summary(pool.res, conf.int=TRUE)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+pool.res
+```
+
+# Pour aller plus loin
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(norm)
+pre <- prelim.norm(as.matrix(don)) # manipulations préliminaires
+thetahat <- em.norm(pre) # estimation par MV
+getparam.norm(pre,thetahat)
+```
+

@@ -1,0 +1,277 @@
+---
+title: "Chapitre 1 : concepts"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_document:
+    toc: true
+    toc_float: true 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 1.5.4 Les vecteurs
+
+```{r,eval=FALSE}
+x <- c(5.6,-2,78,42.3) # vecteur de numériques à 4 éléments
+x
+x <- c(x,3,c(12,8)) # vecteur à 7 éléments
+x
+x <- 2 # vecteur de longueur 1
+x
+1:6
+seq(1,6,by=0.5)
+seq(1,6,length=5)
+rep(1,4)
+rep(c(1,2),each=3)
+```
+```{r}
+A = rep(1,1000) # création d’un vecteur de 1
+typeof(A)
+object.size(A)
+object.size(as.integer(A))
+```
+
+```{r}
+typeof(as.integer(A)+1)
+object.size(as.integer(A)+1)
+typeof(as.integer(A)+1L)
+object.size(as.integer(A)+1L)
+```
+```{r}
+A = rep(1L,1000) # vecteur de 1 stocké en entiers
+object.size(A)
+```
+
+```{r}
+x <- c("A","BB","C1")
+x
+x <- rep('A',5)
+x
+```
+```{r}
+paste("X",1:5,sep="-")
+paste(c("X","Y"),1:5,"txt",sep=".")
+paste(c("X","Y"),1:5,sep=".",collapse="+")
+```
+```{r}
+substr("livre",2,5)
+txtvec <- c("arm","foot","lefroo", "bafoobar")
+grep("foo", txtvec)
+gsub("foo", txtvec, replacement = "DON")
+
+```
+
+```{r}
+1>0
+x>13
+x <- c(-1,0,2)
+test <- x>1
+(1+x^2)*test
+all(x>1)
+any(x>1)
+```
+
+```{r}
+v <- 1:100
+v[6] # donne le sixième élément de v
+v[6:8] # donne les 6ème, 7ème et 8ème éléments de v
+v[c(6,6,1:2)] # donne les 6ème, 6ème, 1er et 2ème éléments de v
+v[10:1] # donne les 10ème, 9ème, ..., 1er éléments de v
+v[-(1:5)] # donne v sans ses 5 premiers éléments
+v[-c(1,5)] # donne v sans le premier et le cinquième élément
+```
+```{r}
+v <- 1:15
+print(v)
+v[(v<5)]
+v[(v<5)&(v>=12)] # & signifie "et"
+```
+```{r}
+v[(v<5)|(v>=12)] # | signifie "ou"
+```
+```{r}
+T <- c(23, 28, 24, 32)
+O3 <- c(80, 102, 87, 124)
+O3[T>25]
+```
+
+```{r, eval=FALSE}
+x[is.na(x)] <- 0 # les éléments NA de x reçoivent la valeur 0
+y[y<0]<- -y[y<0]
+y <- abs(y)
+```
+```{r}
+which.min(x)
+which(x==min(x))
+```
+
+# 1.5.5 Les matrices
+
+```{r}
+m <- matrix(c(1,17,12,3,6,0),ncol=2)
+m
+m <- matrix(1:8,nrow=2,byrow=TRUE)
+m
+m <- matrix(1:4,nrow=3,ncol=3)
+m
+un <- matrix(1,nrow=2,ncol=4)
+un
+```
+```{r}
+x <- seq(1,10,by=2)
+x
+as.matrix(x)
+```
+
+```{r}
+m[1,]
+m[1,,drop=FALSE]
+m[,c(2,2,1)]
+m[-1,] # matrice m sans sa première ligne
+m[1:2,-1] # 2 premières lignes de m privée de sa 1ère colonne
+m <- matrix(1:8,ncol=4,byrow=TRUE)
+m
+m[,m[1,]>2]
+m[m>2]
+m[m>2] <- NA
+m
+m <- matrix(1:4,ncol=2)
+m
+n <- matrix(3:6,ncol=2,byrow=T)
+n
+m+n
+m*n # produit élément par élément
+sin(m) # sinus élément par élément
+exp(m) # exponentielle élément par élément
+m^4 # puissance quatrième élément par élément
+```
+
+```{r}
+A <- matrix(1:4,ncol=2)
+B <- matrix(c(5,7,6,8),ncol=2)
+D <- A%*%t(B)
+D
+eig <- eigen(D)
+eig
+eig$vectors[,1]
+V <- c(1,2)
+solve(D,V)
+```
+```{r}
+X <- matrix(1:6,ncol=3)
+X
+ncol(X)
+nrow(X)
+dim(X)
+cbind(c(1,2),c(3,4))
+apply(X,MARGIN=2,sum) # sommes par colonne
+apply(X,1,mean) # moyennes par ligne
+```
+
+# 1.5.6 Les facteurs
+
+```{r}
+sexe <- factor(c("M","M","F","M","F","M","M","M"))
+sexe
+sexe <- factor(c(2,2,1,2,1,2,1),labels=c("femme","homme"))
+sexe
+niveau <- ordered(c("débutant","débutant","champion","champion",
+"moyen","moyen","moyen","champion"),
+levels=c("débutant","moyen","champion"))
+niveau
+salto <- c(1:5,5:1)
+salto
+salto.f <- as.factor(salto)
+salto.f
+levels(salto.f)
+nlevels(salto.f)
+table(salto.f)
+x <- factor(c(10,11,13))
+as.numeric(x)
+as.numeric(as.character(x))
+```
+
+# 1.5.7 Les listes
+
+```{r}
+vecteur <- seq(2,10,by=3)
+matrice <- matrix(1:8,ncol=2)
+facteur <- factor(c("M","M","F","M","F","M","M","M"))
+ordonne <- ordered(c("débutant","débutant","champion",
+                     "champion","moyen","moyen","moyen","champion"),
+                   levels=c("débutant","moyen","champion"))
+maliste <- list(vecteur,matrice,facteur,ordonne)
+length(maliste)
+mode(maliste)
+names(maliste)
+names(maliste) <- c("vec","mat","sexe","ski")
+names(maliste)
+maliste[[3]]
+maliste[[1]]
+maliste$sexe
+maliste[["sexe"]]
+maliste[c(1,3)]
+X <- matrix(1:12,nrow=4,ncol=3)
+nomligne <- c("ligne1","ligne2","ligne3","ligne4")
+nomcol <- c("col1","col2","col3")
+dimnames(X) <- list(nomligne,nomcol)
+X
+X[c("ligne4","ligne1"),c("col3","col2")]
+dimnames(X) <- list(NULL,dimnames(X)[[2]])
+X
+```
+
+# 1.5.8 Les data-frames
+
+```{r}
+vec1 <- 1:5
+vec2 <- c("a","b","c","c","b")
+df <- data.frame(nom.var1 = vec1, nom.var2 = vec2)
+```
+
+# 1.5.9 La classe d’un objet
+
+```{r}
+df <- data.frame(x = 1:2, y = c(3, 5))
+print(df)
+print.default(df)
+library(data.table)
+dt <- data.table::data.table(df)
+dt
+class(dt)
+```
+
+# 1.6 Les fonctions
+
+```{r}
+set.seed(13) # fixe la graine du générateur
+rnorm(n=3)
+set.seed(13) # fixe la graine du générateur
+rnorm(n=4,mean=5,sd=0.5)
+args(rnorm)
+args(plot)
+```
+
+# 1.7 Les packages
+
+```{r}
+set.seed(45) # fixe la graine du générateur aléatoire
+require(MASS) # ou library(MASS)
+mvrnorm(3,mu=c(0,1),Sigma=matrix(c(1,0.5,0.5,1),2,2))
+set.seed(45) # fixe la graine du générateur aléatoire
+MASS::mvrnorm(3,mu=c(0,1),Sigma=matrix(c(1,0.5,0.5,1),2,2))
+```
+
+```{r, eval=FALSE}
+if (!require(rpart)) install.packages("rpart") # installe rpart si besoin
+require(rpart)
+```
+
+```{r, eval=FALSE}
+update.packages(ask=FALSE)
+packs = as.data.frame(installed.packages(.libPaths()[1]), stringsAsFactors = F)
+install.packages(packs$Package) ## réinstallation des packages
+```

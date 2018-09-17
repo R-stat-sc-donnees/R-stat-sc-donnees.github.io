@@ -1,0 +1,526 @@
+---
+title: "Correction des exercices du chapitre 2"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+
+## Exercice 3.1 : Tracé d'une fonction
+
+1. Définissons une grille de variation pour *x* puis traçons la courbe *sinus*:
+```{r,message=FALSE,warning=FALSE,eval=FALSE}
+x <- seq(0,2*pi,length=1000)
+plot(sin(x)~x,type="l")
+```
+2. Pour rajouter le titre, on utilise la fonction *title* (on aurait pu directement utiliser l'argument *main*
+dans la fonction *plot*):
+```{r,message=FALSE,warning=FALSE}
+plot(sin(x)~x,type="l")
+title("Graphe de la fonction sinus")
+```
+
+## Exercice 3.2 : Comparaison de distributions
+
+1. Pour tracer une loi normale, il suffit de tracer la densité en utilisant la fonction *dnorm*. On peut ensuite
+améliorer le graphique en traçant l'axe des abscisses puis un segment entre 0 et le maximum de la loi normale:
+```{r,message=FALSE,warning=FALSE,eval=FALSE}
+plot(dnorm,-4,4)
+abline(h=0)
+segments(0,0,0,dnorm(0),lty=2)
+```
+2. Pour tracer de nouvelles courbes nous utilisons la fonction *curve* avec l'argument *add=TRUE*.
+Pour différencier les courbes, on utilise une couleur différentes pour chaque distribution.
+```{r,eval=FALSE}
+curve(dt(x,5),add=TRUE,col=2)
+curve(dt(x,30),add=TRUE,col=3)
+```
+3. Il suffit d'utiliser la fonction *legend* et de la positionner en haut à gauche:
+```{r,message=FALSE,warning=FALSE}
+plot(dnorm,-4,4)
+abline(h=0)
+segments(0,0,0,dnorm(0),lty=2)
+curve(dt(x,5),add=TRUE,col=2)
+curve(dt(x,30),add=TRUE,col=3)
+legend("topleft",legend=c("normale","Student(5)","Student(30)"),
+    col=1:3,lty=1)
+```
+
+## Exercice 3.3 : Tracé de points
+
+1. L'importation et la construction du nuage de points sont immédiates:
+```{r,message=FALSE,warning=FALSE,eval=FALSE}
+ozone <- read.table("https://r-stat-sc-donnees.github.io/ozone.txt",header=TRUE)
+plot(maxO3~T12,data=ozone)
+```
+2. Pour relier les points, il suffit d'utiliser l'argument *type="l"*; ce graphe n'est pas lisible car il faut préalablement trier
+les données par abscisses croissantes.
+3. C'est ce que permet la
+fonction *order*:
+```{r,message=FALSE,warning=FALSE}
+ordon <- order(ozone[,"T12"])
+plot(maxO3~T12,data=ozone[ordon,],type="b")
+```
+
+## Exercice 3.4 : Loi des grands nombres
+
+1. On crée un vecteur $X$ de longueur 1000:
+```{r,message=FALSE,warning=FALSE}
+set.seed(123)
+X <- rbinom(1000, size=1, prob=0.6)
+```
+2. La fonction *cumsum* permet de construire un vecteur de sommes cumulées:
+```{r,message=FALSE,warning=FALSE}
+Sl <- cumsum(X)
+Ml <- Sl/(1:1000)
+plot(Ml, type="l")
+abline(h=0.6, col=2)
+```
+Le graphique obtenu illustre la loi des grands nombres.
+
+## Exercice 3.5 : Théorème central limite
+
+1.  S_N suit une loi binomiale de paramètres *N* et *p*, de moyenne *N * p* et d'écart-type *racine(N*p/(1-p)*.
+2. On fixe la graine du générateur aléatoire avant de simuler un vecteur de 1000 réalisations d'une loi binomiale de paramètres *N* et *p* :
+
+```{r,message=FALSE,warning=FALSE}
+set.seed(123)
+p <- 0.5
+N <- 10
+U10 <- (rbinom(1000, size = N, p=p) - N*p) /sqrt(N*p*(1-p))
+N <- 30
+U30 <- (rbinom(1000, size = N, p=p) - N*p) /sqrt(N*p*(1-p))
+N <- 1000
+U1000 <- (rbinom(1000, size = N, p=p) - N*p)/sqrt(N*p*(1-p))
+```
+
+3. Afin de dessiner la courbe de la loi normale centrée-réduite, on crée une grille de $x$ variant entre -4 et 4. On découpe alors la fenêtre graphique en 1 ligne et 3 colonnes puis on trace un histogramme et on superpose la courbe de la loi normale.
+
+```{r,message=FALSE,warning=FALSE}
+grillex <- seq(-4, 4, by = 0.01)
+par(mfrow=c(1,3))
+hist(U10, xlim=c(-4,4), ylim=c(0,0.6), prob=TRUE)
+lines(grillex, dnorm(grillex), col=4)
+hist(U30, xlim=c(-4,4), ylim=c(0,0.6), prob=TRUE)
+lines(grillex, dnorm(grillex), col=4)
+hist(U1000, xlim=c(-4,4), ylim=c(0,0.6), prob=TRUE)
+lines(grillex, dnorm(grillex), col=4)
+```
+
+## Exercice 3.6 : Tracé des taches solaires
+
+1. Le séparateur de décimale est ici la virgule, ce qu'il est important de préciser, sinon la
+variable *nbe_tach* est considérée comme qualitative.
+```{r,message=FALSE,warning=FALSE}
+taches<-read.table("https://r-stat-sc-donnees.github.io/taches_solaires_date.csv",sep=";",header=TRUE,
+     colClasses=c("numeric","Date"))
+summary(taches)
+```
+
+2. Créons la variable qualitative trenteans:
+```{r,message=FALSE,warning=FALSE}
+trenteans <- cut(taches[,2],breaks="30 years")
+levels(trenteans) <- 1:nlevels(trenteans)
+```
+3. Vérifions que les couleurs citées appartiennent bien à la palette de couleur
+```{r,message=FALSE,warning=FALSE}
+couleurs<-c("yellow","magenta","orange","cyan","grey","red",
+    "green","blue")
+all(couleurs%in%colors())
+```
+4. Pour tracer la série chronologique de la figure, on construit d'abord le graphe sans courbe et sans point (argument *type="n"*)
+ce qui permet de définir les plages de variation de *x* et *y* ainsi que les libellés des axes. On dessine alors les morceaux de courbe un par un
+en changeant de couleur à chaque modalité de *trenteans*:
+```{r,message=FALSE,warning=FALSE}
+palette(couleurs)
+coordx <- seq(along=taches[,1])
+plot(coordx,taches[,1],xlab="Temps",ylab="Nb de taches",type="n")
+for (i in levels(trenteans)){
+  selecti <- trenteans==i
+  lines(coordx[selecti],taches[selecti,1],col=i)
+}
+```
+
+## Exercice 3.7 : Tracé d'une densité
+
+1. Pour tracer la courbe de la loi normale, on définit d'abord l'intervalle de variation de *x*:
+
+```{r,message=FALSE,warning=FALSE,eval=FALSE}
+x <- seq(-3.5,3.5,length=1000)
+plot(x,dnorm(x),type="l",ylab="Densité")
+```
+
+2. Pour tracer une droite horizontale, on utilise *abline* et l'argument *h*:
+```{r,message=FALSE,warning=FALSE,eval=FALSE}
+abline(h=0)
+```
+3. à 5. Pour les questions 3 à 5, on utilise les fonctions *polygon*, *arrows* et *text*.
+Pour pouvoir écrire des mathématiques
+avec la fonction *text*, on utilise *expression*:
+```{r,message=FALSE,warning=FALSE}
+x <- seq(-3.5,3.5,length=1000)
+plot(x,dnorm(x),type="l",ylab="Densité")
+abline(h=0)
+selecti <- x>=qnorm(0.95)
+absci <- c(x[selecti],rev(x[selecti]))
+ordon <- c(rep(0,sum(selecti)),rev(dnorm(x[selecti])))
+polygon(absci,ordon,col="blue")
+arrows(2.7,0.2,2,dnorm(2),len=0.1)
+text(2.7,0.2,expression(paste(alpha==5,"%")),pos=3)
+```
+
+## Exercice 3.8 : Plusieurs graphiques
+
+1. Pour générer le graphique, on est amené à redéfinir les marges de chaque graphique à l'aide de la fonction *par*. On utilise
+également la fonction *layout* pour définir la disposition des trois graphiques:
+```{r,message=FALSE,warning=FALSE}
+par(mar=c(2.3,2,0.5,0.3))
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+plot(1:10,10:1,pch=0)
+plot(rep(1,4),type="l")
+plot(c(2,3,-1,0),type="b")
+```
+2. L'argument *widths* de *layout* permet de préciser la largeur de chaque colonne:
+```{r,message=FALSE,warning=FALSE}
+par(mar=c(2.3,2,0.5,0.3))
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE),widths=c(4,1))
+plot(1:10,10:1,pch=0)
+plot(rep(1,4),type="l")
+plot(c(2,3,-1,0),type="b")
+```
+
+## Exercice 3.9 : Nombre d'étudiants par ville universitaire
+
+1. L'importation avec séparateur *;* la classe et le résumé sont donnés par:
+```{r,message=FALSE,warning=FALSE}
+villes <- read.table("https://r-stat-sc-donnees.github.io/villes.csv",header=TRUE,sep=";")
+class(villes)
+summary(villes)
+```
+2. Le vecteur *decoupe* est créé avec
+```{r,message=FALSE,warning=FALSE}
+decoupe <- c(0,15000,25000,50000,75000,100000,max(villes$Nb.etudiant))
+```
+
+3. Le découpage est obtenu avec la fonction *cut* en incluant les extrêmes:
+```{r,message=FALSE,warning=FALSE}
+Xq <- cut(villes$Nb.etudiant,breaks=decoupe)
+```
+4. Le changement des modalités est effectué par:
+```{r,message=FALSE,warning=FALSE}
+levels(Xq) <- paste(format(decoupe[-length(decoupe)]),
+             format(decoupe[-1]),sep="-")
+```
+5. Après avoir chargé le package *ggmap*, la bounding box est obtenue avec
+```{r,message=FALSE,warning=FALSE}
+colnames(villes)[c(3,4)]=c("lat","lon")
+library(ggmap)
+bbox <- make_bbox(lon,lat,data=villes)
+```
+6. La variable qualitative *Xq* est ajoutée à  *villes*:
+```{r,message=FALSE,warning=FALSE}
+villes <- cbind.data.frame(villes,Effectif=Xq)
+```
+7.
+```{r}
+villes <- st_as_sf(villes, coords = c("lon", "lat"), crs = 4326)
+```
+
+8. Le téléchargement s'effectue simplement:
+```{r,message=FALSE,warning=FALSE}
+MaCarte <- get_map(bbox)
+```
+
+9. Le tracé est alors
+```{r,message=FALSE,warning=FALSE}
+ggmap(MaCarte) + geom_point(data = villes, aes(x=lon,y=lat,color = Effectif,size=Effectif)) 
+```
+
+## Exercice 3.10 : Chômage  et élection régionale
+
+1. L'importation utilise la fonction *read_sf* du
+  package *sf* et importe le contenu du répertoire grâce à:
+```{r,message=FALSE,warning=FALSE}
+library(sf)
+setwd("C:/Users/husson/Dropbox/Rpourlastatetladatascience/chapitre/cartes/DONNEES")
+regions <- read_sf("regions-metropole-complet")
+```
+2. Le graphique (pour la première variable) est simplement
+```{r,message=FALSE,warning=FALSE}
+plot(regions[,1])
+```
+3. Le résumé et la classe sont obtenues par
+```{r,message=FALSE,warning=FALSE}
+summary(regions)
+class(regions)
+```
+4. Le résumé pécédent nous a affiché les noms de variables et nous pouvons lire que la variable *NOM* contient le nom des région et son contenu s'affiche bien avec
+```{r,message=FALSE,warning=FALSE}
+regions$NOM
+```
+  La première variable *NOM* donne l'intitulé de la région, la
+  seconde son code.
+5. Le graphique s'obtient comme suit:
+```{r,message=FALSE,warning=FALSE}
+plot(regions[1,1])
+```
+6. La région correspondante, le Limousin, est donnée par
+```{r,message=FALSE,warning=FALSE}
+regions$N1OM[1]
+```
+7. Nous sélectionnons dans l'objet *regions* les lignes qui correspondent à une valeur pour la  variable *NOM* d'*Alsace* grâce à *filter* et nous traçons:
+```{r,message=FALSE,warning=FALSE}
+ggplot() + geom_sf(data=regions %>% filter(NOM=="Alsace"))
+```
+8. L'importation se fait avec *read_delim* du package *readr* qui importe directement au format *tibble*:
+```{r,message=FALSE,warning=FALSE}
+library(readr)
+chomregion <- read_delim("https://r-stat-sc-donnees.github.io/txchom_region.csv",delim=";")
+```
+Nous créons une variable de type caractère *NUMERO* et supprimons la variable *CODGEO* avec:
+```{r,message=FALSE,warning=FALSE}
+chomregion <- mutate(chomregion, NUMERO=as.character(CODGEO),
+                     CODGEO=NULL)
+```
+
+9. Nous fusionnons selon *NUMERO*:
+```{r,message=FALSE,warning=FALSE}
+chomtot <- inner_join(regions,chomregion,by="NUMERO")
+```
+10. Le graphique qui colorie par ordre décroissant (signe "-") selon le taux de chômage 2011 est obtenu avec:
+```{r,message=FALSE,warning=FALSE}
+ggplot() + geom_sf(data=chomtot,aes(fill=-TCHOMB1T11))
+```
+11. La variable *Majorite* est ajoutee au tibble *chomtot* avec
+```{r,message=FALSE,warning=FALSE}
+chomtot <- chomtot %>% mutate(majorite= factor(Majorite,levels=c("UMP","PRG","PS","DVG")))
+```
+Remarquons que les niveaux (et l'ordre) des facteurs est contrôlé avec l'argument *levels* de la fonction *factor*. Ensuite le graphique est obtenu par
+```{r,message=FALSE,warning=FALSE}
+ggplot() + geom_sf(data=chomtot,aes(fill=majorite)) +
+  scale_fill_manual(c("blue","salmon","pink","pink2"))
+```
+
+## Exercice 3.11 : Représentation graphique et projection
+
+1. Le package est chargé puis la carte est tracée avec la fonction
+  *map*:
+```{r,message=FALSE,warning=FALSE}
+library(maps)
+map("state",plot=TRUE)
+```
+2. L'objet de type *map* est en suite transformé en type *sfc* 
+```{r,message=FALSE,warning=FALSE}
+usa <- map("state",plot=FALSE,fill=TRUE)
+usasf <- st_as_sfc(usa)
+```
+3. Il est ensuite représenté:
+```{r,message=FALSE,warning=FALSE}
+plot(usasf)
+```
+4. La projection en polyconique puis le graphique:
+```{r,message=FALSE,warning=FALSE}
+usasf2 <- st_transform(usasf,102008)
+plot(usasf2)
+```
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+## Exercice 3.13 : Représentations graphiques simples avec ggplot2
+
+
+1. On trace l'histogramme avec
+
+```{r}
+data(mtcars)
+ggplot(mtcars)+aes(x=mpg)+geom_histogram()
+```
+
+2. On obtient le diagramme en barre 
+
+```{r}
+ggplot(mtcars)+aes(x=as.factor(cyl))+geom_bar()
+```
+
+3. On utilise *facet_wrap* pour obtenir le nuage de points pour chaque valeur de *cyl*
+
+```{r}
+ggplot(mtcars)+aes(x=mpg,y=disp)+geom_point()+facet_wrap(~cyl)
+```
+
+
+## Exercice 3.14 : Représentation d’une courbe avec ggplot2
+
+Il faut utiliser *stat=identity*
+
+```{r}
+df <- data.frame(couleur=c("red","blue","green","black"),freq=c(0.3,0.2,0.4,0.1))
+ggplot(df)+aes(x=couleur,y=freq)+geom_bar(stat="identity")
+```
+
+
+
+## Exercice 3.15 : Représentation graphique avec ggplot2
+
+
+1. On trace le sinus
+```{r}
+X <- data.frame(X=seq(-2*pi,2*pi,by=0.01))
+p1 <- ggplot(X)+aes(x=X,y=sin(X))+geom_line()
+p1
+```
+
+
+2. On ajoute les deux droites verticales
+```{r}
+p2 <- p1+geom_abline(intercept=c(-1,1),slope=0,color="blue",size=2)
+p2
+```
+
+3. Puis le cosinus
+```{r}
+p3 <- p2+geom_line(aes(y=cos(X)),color="red")
+p3
+```
+
+On peut aussi obtenir le graphe avec une légende 
+
+```{r}
+X <- seq(-2*pi,2*pi,by=0.01)
+df <- data.frame(X=X,cos=cos(X),sin=sin(X))
+df1 <- gather(df,key="fonction",value="value",-X)
+ggplot(df1)+aes(x=X,y=value,color=fonction)+geom_line()+geom_abline(intercept=c(-1,1),slope=0,color="blue",size=2)
+```
+
+
+
+## Exercice 3.16 : Simulation et représentation graphique avec ggplot2
+
+1. On simule les données
+
+```{r}
+n <- 100
+X <- runif(n)
+eps <- rnorm(n,sd=0.2)
+Y <- 3+X+eps
+D <- data.frame(X,Y)
+```
+
+2. Droite des moindres carrés avec **geom_abline**
+
+```{r}
+model <- lm(Y~.,data=D)
+co <- coef(model)
+ggplot(D)+aes(x=X,y=Y)+geom_point()+geom_abline(slope=co[2],intercept=co[1],color="blue")
+```
+
+Droite des moindres carrés avec **geom_smooth**
+```{r}
+ggplot(D)+aes(x=X,y=Y)+geom_point()+geom_smooth(method="lm")
+```
+
+3. On représente les résidus
+```{r}
+D$fit <- predict(model)
+ggplot(D)+aes(x=X,y=Y)+geom_point()+geom_smooth(method="lm")+geom_segment(aes(xend=X,yend=fit))
+```
+
+## Exercice 3.17 : Habillage selon une variable qualitative avec ggplot2
+
+
+```{r}
+data(state)
+states <- data.frame(state.x77,state.name=rownames(state.x77),state.region=state.region)
+```
+
+1. Création de la variable *revenu1* 
+```{r}
+revenu1 <- cut(states$Income,breaks=quantile(states$Income,c(0,1/3,2/3,1))+c(-1,0,0,1))
+levels(revenu1) <- c("Faible","Moyen","Eleve")
+states1 <- cbind(states,revenu1)
+```
+
+2. On représente le nuage pour chaque valeur de *revenu1*
+```{r}
+ggplot(states1)+geom_point(aes(x=Population,y=Murder),size=2)+facet_wrap(~revenu1,nrow=1)
+```
+
+3. On ajoute une couleur différente pour chaque valeur de *state.region* et la droite des moindres carrés
+
+```{r}
+ggplot(states1)+geom_point(aes(x=Population,y=Murder,color=state.region),size=2)+geom_smooth(aes(x=Population,y=Murder),method="lm")+facet_grid(~revenu1)
+```
+
+
+## Exercice 3.18 : Habillage selon une variable quantitative avec ggplot2
+
+1. On charge le jeu de données
+```{r}
+library(mlbench)
+data(Ozone)
+help(Ozone)
+```
+
+2. Création ed la variable *date*
+
+```{r}
+date <- as.Date(paste(paste(Ozone[,1],Ozone[,2],sep="-"),"1976",sep="-"),format=c("%m-%d-%Y"))
+donnees <- cbind(Ozone,date)
+```
+
+3. Représentation de la série
+```{r}
+ggplot(donnees)+geom_line(aes(x=date,y=V4),size=1)+scale_y_continuous(name="Concentration en O3")
+```
+
+4. Représentation du nuage
+
+```{r}
+ggplot(donnees)+geom_point(aes(x=V8,y=V4))+scale_y_continuous(name="Concentration en O3")+scale_x_continuous(name="Température à Sandburg")
+```
+
+5. Création de la variable *mois*
+
+```{r}
+mois <- format(donnees$date,"%b")
+donnees <- cbind(donnees,mois)
+ggplot(donnees)+geom_boxplot(aes(x=mois,y=V4),fill="white")
+```
+
+
+6. Tracé des boxplots
+```{r}
+ggplot(donnees)+geom_boxplot(aes(x=mois,y=V4),fill="white")
+```
+Il faut orfdonner correctement les mois
+```{r}
+mois1 <- factor(donnees$mois,levels=unique(mois))
+donnees <- cbind(donnees,mois1)
+ggplot(donnees)+geom_boxplot(aes(x=mois1,y=V4),fill="white")+scale_x_discrete(name="Mois")
+```
+
+7. On discrétise la variable *vent*
+```{r}
+vent <- cut(donnees$V6,breaks = c(min(donnees$V6-1),quantile(donnees$V6,c(1/3,2/3)),max(donnees$V6)+1))
+levels(vent) <- c("Faible","Moyen","Fort")
+```
+
+
+8. On représente pour chaque mois la concentration en ozone en fonction de la température
+```{r}
+donnees <- cbind(donnees,vent)
+ggplot(donnees)+geom_point(aes(x=V8,y=V4,color=vent))+facet_wrap(~mois1)
+```
