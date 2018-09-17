@@ -1,3 +1,6 @@
-# R pour la statistque et la science des données
+---
+title: R pour la statistque et la science des données 
+---
 
+# Test
 
