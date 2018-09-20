@@ -1,5 +1,5 @@
 ---
-title: "Correction des exercices du chapitre 2"
+title: "Correction des exercices du chapitre 3"
 author: "Husson et al."
 date: "09/09/2018"
 output:
@@ -225,27 +225,22 @@ levels(Xq) <- paste(format(decoupe[-length(decoupe)]),
 ```
 5. Après avoir chargé le package *ggmap*, la bounding box est obtenue avec
 ```{r,message=FALSE,warning=FALSE}
-colnames(villes)[c(3,4)]=c("lat","lon")
 library(ggmap)
-bbox <- make_bbox(lon,lat,data=villes)
+bbox <- make_bbox(longitude,latitude,data=villes)
 ```
 6. La variable qualitative *Xq* est ajoutée à  *villes*:
 ```{r,message=FALSE,warning=FALSE}
 villes <- cbind.data.frame(villes,Effectif=Xq)
 ```
-7.
-```{r}
-villes <- st_as_sf(villes, coords = c("lon", "lat"), crs = 4326)
-```
 
-8. Le téléchargement s'effectue simplement:
+7. Le téléchargement s'effectue simplement:
 ```{r,message=FALSE,warning=FALSE}
 MaCarte <- get_map(bbox)
 ```
 
-9. Le tracé est alors
+9. Le tracé est alors (en enlevant la légende automatique pour "size" avec la fonction *guides*)
 ```{r,message=FALSE,warning=FALSE}
-ggmap(MaCarte) + geom_point(data = villes, aes(x=lon,y=lat,color = Effectif,size=Effectif)) 
+ggmap(MaCarte) + geom_point(data = villes, aes(x=longitude,y=latitude,color = Effectif,size=5000*log(Nb.etudiant)))+guides(size=FALSE) 
 ```
 
 ## Exercice 3.10 : Chômage  et élection régionale
@@ -278,10 +273,11 @@ plot(regions[1,1])
 ```
 6. La région correspondante, le Limousin, est donnée par
 ```{r,message=FALSE,warning=FALSE}
-regions$N1OM[1]
+regions$NOM[1]
 ```
 7. Nous sélectionnons dans l'objet *regions* les lignes qui correspondent à une valeur pour la  variable *NOM* d'*Alsace* grâce à *filter* et nous traçons:
 ```{r,message=FALSE,warning=FALSE}
+library(dplyr)
 ggplot() + geom_sf(data=regions %>% filter(NOM=="Alsace"))
 ```
 8. L'importation se fait avec *read_delim* du package *readr* qui importe directement au format *tibble*:
@@ -310,7 +306,7 @@ chomtot <- chomtot %>% mutate(majorite= factor(Majorite,levels=c("UMP","PRG","PS
 Remarquons que les niveaux (et l'ordre) des facteurs est contrôlé avec l'argument *levels* de la fonction *factor*. Ensuite le graphique est obtenu par
 ```{r,message=FALSE,warning=FALSE}
 ggplot() + geom_sf(data=chomtot,aes(fill=majorite)) +
-  scale_fill_manual(c("blue","salmon","pink","pink2"))
+  scale_fill_manual(values=c("blue","salmon","pink","pink2"))
 ```
 
 ## Exercice 3.11 : Représentation graphique et projection
@@ -324,9 +320,14 @@ map("state",plot=TRUE)
 2. L'objet de type *map* est en suite transformé en type *sfc* 
 ```{r,message=FALSE,warning=FALSE}
 usa <- map("state",plot=FALSE,fill=TRUE)
-usasf <- st_as_sfc(usa)
 ```
-3. Il est ensuite représenté:
+3. Transformons le en sfc
+```{r}
+usasf <- st_as_sfc(usa)
+class(usasf)
+```
+
+4. Il est ensuite représenté:
 ```{r,message=FALSE,warning=FALSE}
 plot(usasf)
 ```
@@ -335,192 +336,139 @@ plot(usasf)
 usasf2 <- st_transform(usasf,102008)
 plot(usasf2)
 ```
-```{r, message=FALSE, warning=FALSE}
-library(tidyverse)
+## Exercice 3.12 : Représentation de tuiles
+1. Trouvons les coordonnées avec la projection de Mercator (à la main):
+```{r,message=FALSE,warning=FALSE}
+lon <- 6.615982
+lat <- 45.85161
+zoom <- 13
+xx <- (lon+180)/360 * 2^zoom
+yy <- (1- log(tan(lat*pi/180)+1/cos(lat*pi/180)) /pi)*2^(zoom-1)
 ```
 
-## Exercice 3.13 : Représentations graphiques simples avec ggplot2
-
-
-1. On trace l'histogramme avec
-
-```{r}
-data(mtcars)
-ggplot(mtcars)+aes(x=mpg)+geom_histogram()
+2. Arrondissons pour trouver *xtile* et *ytile*
+```{r,message=FALSE,warning=FALSE}
+xtile <- floor(xx)
+ytile <- floor(yy)
 ```
 
-2. On obtient le diagramme en barre 
-
-```{r}
-ggplot(mtcars)+aes(x=as.factor(cyl))+geom_bar()
+3. Téléchargeons la tuile: 
+   a. dans un premier temps composons l'URL
+```{r,message=FALSE,warning=FALSE}
+urlStr <- paste("https://b.tile.openstreetmap.org/",zoom,"/",xtile,"/",ytile,".png",sep="")
+```
+   b. dans un second temps téléchargeons l'image
+```{r,message=FALSE,warning=FALSE}
+download.file(urlStr,"Rochebrune.png", mode = "wb", quiet = TRUE)
+```
+   c. dans un troisième temps importons l'image PNG dans R et transformons l'objet importé en type *raster*
+```{r,message=FALSE,warning=FALSE}
+library(png)
+myTile <- readPNG("Rochebrune.png", native = FALSE)
+mapc <- as.raster(myTile)
 ```
 
-3. On utilise *facet_wrap* pour obtenir le nuage de points pour chaque valeur de *cyl*
-
-```{r}
-ggplot(mtcars)+aes(x=mpg,y=disp)+geom_point()+facet_wrap(~cyl)
+4. Changement de classe et premiers attributs declasse ggmap
+```{r,message=FALSE,warning=FALSE}
+class(mapc) <- c("ggmap","raster")
+attr(mapc,"source") <- "OSM"
+attr(mapc,"maptype") <- "terrain"
+attr(mapc,"zoom") <- zoom
 ```
 
-
-## Exercice 3.14 : Représentation d’une courbe avec ggplot2
-
-Il faut utiliser *stat=identity*
-
-```{r}
-df <- data.frame(couleur=c("red","blue","green","black"),freq=c(0.3,0.2,0.4,0.1))
-ggplot(df)+aes(x=couleur,y=freq)+geom_bar(stat="identity")
+5. Dernier attribut de la classe ggmap: la bounding box, l'attribut *bb*
+   a. programmons une fonction pour calculer la longitude latitude depuis les coordonnées de Mercator
+```{r,message=FALSE,warning=FALSE}
+lonlat <- function(x,y,zoom) {
+    lon <- x/2^zoom*360-180
+    lat <- atan(sinh(pi-y/(2^zoom)*2*pi))*180/pi
+    return(cbind.data.frame(lon=lon,lat=lat))
+    }
 ```
-
-
-
-## Exercice 3.15 : Représentation graphique avec ggplot2
-
-
-1. On trace le sinus
-```{r}
-X <- data.frame(X=seq(-2*pi,2*pi,by=0.01))
-p1 <- ggplot(X)+aes(x=X,y=sin(X))+geom_line()
-p1
+  b. les 4 bords de la tuiles (en coordonnées de Mercator) sont obtenus en partant du bord *xtile* *ytile* (en bas à gauche) et en ajoutant 1 ou pas
+```{r,message=FALSE,warning=FALSE}
+intbbx <- 0:1
+intbby <- 0:1
+ajouts <- expand.grid(xtile+intbbx,ytile+intbby)
 ```
-
-
-2. On ajoute les deux droites verticales
-```{r}
-p2 <- p1+geom_abline(intercept=c(-1,1),slope=0,color="blue",size=2)
-p2
+  c. en utilisant la fonction *lonlat* transformons les 4 bords de Mercator vers lon/lat et calculons la bounding box 
+```{r,message=FALSE,warning=FALSE}
+library(ggmap)
+mabb <- make_bbox(lon,lat,lonlat(ajouts[,1],ajouts[,2],zoom),f=0)
 ```
-
-3. Puis le cosinus
-```{r}
-p3 <- p2+geom_line(aes(y=cos(X)),color="red")
-p3
+  d. ajustons le resultat au bon format: data-frame avec noms adequats dans le bon ordre et le tout devient l'attribut *bb*
+```{r,message=FALSE,warning=FALSE}
+mabb <- data.frame(matrix(mabb,nrow=1))
+names(mabb) <- c("ll.lon","ll.lat","ur.lon","ur.lat")
+attr(mapc,"bb") <- mabb[,c("ll.lat","ll.lon","ur.lat","ur.lon")]
 ```
-
-On peut aussi obtenir le graphe avec une légende 
-
-```{r}
-X <- seq(-2*pi,2*pi,by=0.01)
-df <- data.frame(X=X,cos=cos(X),sin=sin(X))
-df1 <- gather(df,key="fonction",value="value",-X)
-ggplot(df1)+aes(x=X,y=value,color=fonction)+geom_line()+geom_abline(intercept=c(-1,1),slope=0,color="blue",size=2)
+6. Trace de la tuile qui est maintenant au bon format
+```{r,message=FALSE,warning=FALSE}
+ggmap(mapc)
 ```
-
-
-
-## Exercice 3.16 : Simulation et représentation graphique avec ggplot2
-
-1. On simule les données
-
-```{r}
-n <- 100
-X <- runif(n)
-eps <- rnorm(n,sd=0.2)
-Y <- 3+X+eps
-D <- data.frame(X,Y)
+7. Plusieurs tuiles:
+Le départ est identique
+```{r,message=FALSE,warning=FALSE}
+lon <- 6.615982
+lat <- 45.85161
+zoom <- 13
+xx <- (lon+180)/360 * 2^zoom
+yy <- (1- log(tan(lat*pi/180)+1/cos(lat*pi/180)) /pi)*2^(zoom-1) 
+xtile <- floor(xx)
+ytile <- floor(yy)
 ```
-
-2. Droite des moindres carrés avec **geom_abline**
-
-```{r}
-model <- lm(Y~.,data=D)
-co <- coef(model)
-ggplot(D)+aes(x=X,y=Y)+geom_point()+geom_abline(slope=co[2],intercept=co[1],color="blue")
-```
-
-Droite des moindres carrés avec **geom_smooth**
-```{r}
-ggplot(D)+aes(x=X,y=Y)+geom_point()+geom_smooth(method="lm")
-```
-
-3. On représente les résidus
-```{r}
-D$fit <- predict(model)
-ggplot(D)+aes(x=X,y=Y)+geom_point()+geom_smooth(method="lm")+geom_segment(aes(xend=X,yend=fit))
-```
-
-## Exercice 3.17 : Habillage selon une variable qualitative avec ggplot2
-
-
-```{r}
-data(state)
-states <- data.frame(state.x77,state.name=rownames(state.x77),state.region=state.region)
-```
-
-1. Création de la variable *revenu1* 
-```{r}
-revenu1 <- cut(states$Income,breaks=quantile(states$Income,c(0,1/3,2/3,1))+c(-1,0,0,1))
-levels(revenu1) <- c("Faible","Moyen","Eleve")
-states1 <- cbind(states,revenu1)
-```
-
-2. On représente le nuage pour chaque valeur de *revenu1*
-```{r}
-ggplot(states1)+geom_point(aes(x=Population,y=Murder),size=2)+facet_wrap(~revenu1,nrow=1)
-```
-
-3. On ajoute une couleur différente pour chaque valeur de *state.region* et la droite des moindres carrés
-
-```{r}
-ggplot(states1)+geom_point(aes(x=Population,y=Murder,color=state.region),size=2)+geom_smooth(aes(x=Population,y=Murder),method="lm")+facet_grid(~revenu1)
+Le télechargement de plusieurs tuiles autour (2 couronnes d'où le vecteurs de -2 à +2)
+```{r,message=FALSE,warning=FALSE}
+inttelex <- -2:2
+intteley <- -2:2
+ajouts <- expand.grid(xtile+inttelex,ytile+intteley)
+blocs <- expand.grid(1:5,1:5)
+listeUrlStr <- paste("https://b.tile.openstreetmap.org/",zoom,"/",ajouts[,1],"/",ajouts[,2],".png",sep="")
+listeDest <- paste(tempfile(),1:nrow(ajouts),sep="")
+if (.Platform$OS.type=="windows") {
+  for (i in 1:length(listeUrlStr)) {
+    download.file(listeUrlStr[i],listeDest[i],method="wininet",mode="wb",quiet=TRUE) 
+  }
+} else {
+download.file(listeUrlStr,listeDest,method = "libcurl",quiet=TRUE)
+}
 ```
 
 
-## Exercice 3.18 : Habillage selon une variable quantitative avec ggplot2
-
-1. On charge le jeu de données
-```{r}
-library(mlbench)
-data(Ozone)
-help(Ozone)
+L'agencement de ces tuiles (256x256) en une seule matrice *raster*
+```{r,message=FALSE,warning=FALSE}
+mapf <- matrix(0,256*length(inttelex),256*length(intteley))
+for (i in 1:nrow(ajouts)) {
+    myTile <- readPNG(listeDest[i], native = FALSE)
+    ## raster
+    mapc <- as.raster(myTile)
+    ## depot dans la matrice
+    mapf[((blocs[i,1]-1)*256+1):(blocs[i,1]*256),
+    ((blocs[i,2]-1)*256+1):(blocs[i,2]*256)] <- mapc
+}
 ```
 
-2. Création ed la variable *date*
-
-```{r}
-date <- as.Date(paste(paste(Ozone[,1],Ozone[,2],sep="-"),"1976",sep="-"),format=c("%m-%d-%Y"))
-donnees <- cbind(Ozone,date)
+Les attributs basiques et la classe *ggmap*
+```{r,message=FALSE,warning=FALSE}
+class(mapf) <- c("ggmap","raster")
+attr(mapf,"source") <- "OSM"
+attr(mapf,"maptype") <- "terrain"
+attr(mapf,"zoom") <- zoom
+```
+Le calcul de la bounding box (en réutilisant la fonction *lonlat* du 5.a)
+```{r,message=FALSE,warning=FALSE}
+inttelex <- -2:3
+intteley <- -2:3
+ajouts <- expand.grid(xtile+inttelex,ytile+intteley)
+library(ggmap)
+mabb <- make_bbox(lon,lat,lonlat(ajouts[,1],ajouts[,2],zoom))
+mabb <- data.frame(matrix(mabb,nrow=1))
+names(mabb) <- c("ll.lon","ll.lat","ur.lon","ur.lat")
+## attribut bbox
+attr(mapf,"bb") <- mabb[,c("ll.lat","ll.lon","ur.lat","ur.lon")]
+```
+Le graphique final
+```{r,message=FALSE,warning=FALSE}
+ggmap(mapf)
 ```
 
-3. Représentation de la série
-```{r}
-ggplot(donnees)+geom_line(aes(x=date,y=V4),size=1)+scale_y_continuous(name="Concentration en O3")
-```
-
-4. Représentation du nuage
-
-```{r}
-ggplot(donnees)+geom_point(aes(x=V8,y=V4))+scale_y_continuous(name="Concentration en O3")+scale_x_continuous(name="Température à Sandburg")
-```
-
-5. Création de la variable *mois*
-
-```{r}
-mois <- format(donnees$date,"%b")
-donnees <- cbind(donnees,mois)
-ggplot(donnees)+geom_boxplot(aes(x=mois,y=V4),fill="white")
-```
-
-
-6. Tracé des boxplots
-```{r}
-ggplot(donnees)+geom_boxplot(aes(x=mois,y=V4),fill="white")
-```
-Il faut orfdonner correctement les mois
-```{r}
-mois1 <- factor(donnees$mois,levels=unique(mois))
-donnees <- cbind(donnees,mois1)
-ggplot(donnees)+geom_boxplot(aes(x=mois1,y=V4),fill="white")+scale_x_discrete(name="Mois")
-```
-
-7. On discrétise la variable *vent*
-```{r}
-vent <- cut(donnees$V6,breaks = c(min(donnees$V6-1),quantile(donnees$V6,c(1/3,2/3)),max(donnees$V6)+1))
-levels(vent) <- c("Faible","Moyen","Fort")
-```
-
-
-8. On représente pour chaque mois la concentration en ozone en fonction de la température
-```{r}
-donnees <- cbind(donnees,vent)
-ggplot(donnees)+geom_point(aes(x=V8,y=V4,color=vent))+facet_wrap(~mois1)
-```

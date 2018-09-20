@@ -2878,9 +2878,14 @@ div.tocify {
 </ol>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZmFjdG9yaWVsbGUgPC0gZnVuY3Rpb24obikge1xuICBpZiAobjwwKSBzdG9wKFxcbCdlbnRpZXIgZG9pdCDDg8KqdHJlIHN0cmljdGVtZW50IHBvc2l0aWZcXClcbiAgaWYgKG49PTApIHJldHVybigxKVxuICBpZiAoZmxvb3IobikhPW4pIHdhcm5pbmcocGFzdGUoXFxhcnJvbmRpIGRlXFwsbixcXGVuXFwsZmxvb3IobikpKVxuICByZXN1bHRhdCA8LSBwcm9kKDE6bilcbiAgcmV0dXJuKHJlc3VsdGF0KVxufVxuYGBgXG5gYGAifQ== -->
-<p><code>r</code>r factorielle &lt;- function(n) { if (n&lt;0) stop(’entier doit Ãªtre strictement positif) if (n==0) return(1) if (floor(n)!=n) warning(paste(de,n,,floor(n))) resultat &lt;- prod(1:n) return(resultat) }</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmFjdG9yaWVsbGUgPC0gZnVuY3Rpb24obikge1xuICBpZiAobjwwKSBzdG9wKFwibCdlbnRpZXIgZG9pdCDDqnRyZSBzdHJpY3RlbWVudCBwb3NpdGlmXCIpXG4gIGlmIChuPT0wKSByZXR1cm4oMSlcbiAgaWYgKGZsb29yKG4pIT1uKSB3YXJuaW5nKHBhc3RlKFwiYXJyb25kaSBkZVwiLG4sXCJlblwiLGZsb29yKG4pKSlcbiAgcmVzdWx0YXQgPC0gcHJvZCgxOm4pXG4gIHJldHVybihyZXN1bHRhdClcbn1cbmBgYCJ9 -->
+<pre class="r"><code>factorielle &lt;- function(n) {
+  if (n&lt;0) stop(&quot;l'entier doit être strictement positif&quot;)
+  if (n==0) return(1)
+  if (floor(n)!=n) warning(paste(&quot;arrondi de&quot;,n,&quot;en&quot;,floor(n)))
+  resultat &lt;- prod(1:n)
+  return(resultat)
+}</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2889,16 +2894,25 @@ div.tocify {
 </ol>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZmFjdG9yaWVsbGUgPC0gZnVuY3Rpb24obikge1xuICBpZiAobjwwKSBzdG9wKFxcbCdlbnRpZXIgZG9pdCDDg8KqdHJlIHN0cmljdGVtZW50IHBvc2l0aWZcXClcbiAgaWYgKG49PTApIHJldHVybigxKVxuICBpZiAoZmxvb3IobikhPW4pe1xuICAgIHdhcm5pbmcocGFzdGUoXFxhcnJvbmRpIGRlXFwsbixcXGVuXFwsZmxvb3IobikpKVxuICAgIG4gPC0gZmxvb3IobilcbiAgfVxuICByZXN1bHRhdCA8LSAxXG4gIGZvciAoaSBpbiAxOm4pIHJlc3VsdGF0IDwtIHJlc3VsdGF0KmlcbiAgcmV0dXJuKHJlc3VsdGF0KVxufVxuZmFjdG9yaWVsbGUoNSlcbmBgYFxuYGBgIn0= -->
-<p><code>r</code>r factorielle &lt;- function(n) { if (n&lt;0) stop(’entier doit Ãªtre strictement positif) if (n==0) return(1) if (floor(n)!=n){ warning(paste(de,n,,floor(n))) n &lt;- floor(n) } resultat &lt;- 1 for (i in 1:n) resultat &lt;- resultat*i return(resultat) } factorielle(5)</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmFjdG9yaWVsbGUgPC0gZnVuY3Rpb24obikge1xuICBpZiAobjwwKSBzdG9wKFwibCdlbnRpZXIgZG9pdCDDqnRyZSBzdHJpY3RlbWVudCBwb3NpdGlmXCIpXG4gIGlmIChuPT0wKSByZXR1cm4oMSlcbiAgaWYgKGZsb29yKG4pIT1uKXtcbiAgICB3YXJuaW5nKHBhc3RlKFwiYXJyb25kaSBkZVwiLG4sXCJlblwiLGZsb29yKG4pKSlcbiAgICBuIDwtIGZsb29yKG4pXG4gIH1cbiAgcmVzdWx0YXQgPC0gMVxuICBmb3IgKGkgaW4gMTpuKSByZXN1bHRhdCA8LSByZXN1bHRhdCppXG4gIHJldHVybihyZXN1bHRhdClcbn1cbmZhY3RvcmllbGxlKDUpXG5gYGAifQ== -->
+<pre class="r"><code>factorielle &lt;- function(n) {
+  if (n&lt;0) stop(&quot;l'entier doit être strictement positif&quot;)
+  if (n==0) return(1)
+  if (floor(n)!=n){
+    warning(paste(&quot;arrondi de&quot;,n,&quot;en&quot;,floor(n)))
+    n &lt;- floor(n)
+  }
+  resultat &lt;- 1
+  for (i in 1:n) resultat &lt;- resultat*i
+  return(resultat)
+}
+factorielle(5)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiWzFdIDEyMFxuIn0= -->
 <pre><code>[1] 120</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuZmFjdG9yaWVsbGUoNC4yMylcbmBgYFxuYGBgIn0= -->
-<p><code>r</code>r factorielle(4.23)</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmFjdG9yaWVsbGUoNC4yMylcbmBgYCJ9 -->
+<pre class="r"><code>factorielle(4.23)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiWzFdIDI0XG4ifQ== -->
 <pre><code>[1] 24</code></pre>
@@ -2913,9 +2927,30 @@ div.tocify {
 </ol>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudmVudGlsYXRpb24gPC0gZnVuY3Rpb24oWHF1YWwscD0wLjA1KSB7XG4gIGlmICghaXMuZmFjdG9yKFhxdWFsKSkgc3RvcChcXFhxdWFsIGRvaXQgZXRyZSB1biBmYWN0ZXVyIFxcblxcKVxuICBtb2RhbGl0ZXMgPC0gbGV2ZWxzKFhxdWFsKVxuICBpZiAobGVuZ3RoKG1vZGFsaXRlcyk8PTEpIHN0b3AoXFxwYXMgYXNzZXogZGUgbml2ZWF1eCBcXG5cXClcbiAgdGFibCA8LSB0YWJsZShYcXVhbClcbiAgc2VsZWN0aSA8LSAodGFibC9zdW0odGFibCkpPHBcbiAgaWYgKCFhbnkoc2VsZWN0aSkpIHJldHVybihYcXVhbCkgZWxzZSB7XG4gICBsZXNxdWVscyA8LSBtb2RhbGl0ZXNbIXNlbGVjdGldXG4gICBwcm92IDwtIGZhY3RvcihYcXVhbFsoWHF1YWwlaW4lbGVzcXVlbHMpXSxsZXZlbHM9bGVzcXVlbHMpXG4gICBwcm92IDwtIHRhYmxlKHByb3YpXG4gICBwcm9iYSA8LSBwcm92L3N1bShwcm92KVxuICAgZm9yIChqIGluIG1vZGFsaXRlc1tzZWxlY3RpXSkge1xuICAgICMjIHRpcmFnZXMgZGFucyBsZXMgbW9kYWxpdGVzIGF1IGhhc2FyZCBldCByZW1wbGFjZW1lbnRcbiAgICBpZiAobGVuZ3RoKGxlc3F1ZWxzKT09MSl7XG4gICAgIHdhcm5pbmcoXFwxIHNldWxlIG1vZGFsaXRlXFxuXFwpXG4gICAgIFhxdWFsW1hxdWFsPT1qXTwtbGVzcXVlbHNcbiAgICB9IGVsc2UgWHF1YWxbWHF1YWw9PWpdPC1zYW1wbGUobGVzcXVlbHMsc3VtKFhxdWFsPT1qKSxcbiAgICAgICAgICAgICByZXBsYWNlPVRSVUUscHJvYj1wcm9iYSlcbiAgIH1cbiAgIFhxdWFsdmVudCA8LSBmYWN0b3IoYXMuY2hhcmFjdGVyKFhxdWFsKSlcbiAgfVxuICByZXR1cm4oWHF1YWx2ZW50KVxuIH1cbmBgYFxuYGBgIn0= -->
-<p><code>r</code>r ventilation &lt;- function(Xqual,p=0.05) { if (!is.factor(Xqual)) stop(doit etre un facteur ) modalites &lt;- levels(Xqual) if (length(modalites)&lt;=1) stop(assez de niveaux ) tabl &lt;- table(Xqual) selecti &lt;- (tabl/sum(tabl))&lt;p if (!any(selecti)) return(Xqual) else { lesquels &lt;- modalites[!selecti] prov &lt;- factor(Xqual[(Xqual%in%lesquels)],levels=lesquels) prov &lt;- table(prov) proba &lt;- prov/sum(prov) for (j in modalites[selecti]) { ## tirages dans les modalites au hasard et remplacement if (length(lesquels)==1){ warning(\1 seule modalite) Xqual[Xqual==j]&lt;-lesquels } else Xqual[Xqual==j]&lt;-sample(lesquels,sum(Xqual==j), replace=TRUE,prob=proba) } Xqualvent &lt;- factor(as.character(Xqual)) } return(Xqualvent) }</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmVudGlsYXRpb24gPC0gZnVuY3Rpb24oWHF1YWwscD0wLjA1KSB7XG4gIGlmICghaXMuZmFjdG9yKFhxdWFsKSkgc3RvcChcIlhxdWFsIGRvaXQgZXRyZSB1biBmYWN0ZXVyIFxcblwiKVxuICBtb2RhbGl0ZXMgPC0gbGV2ZWxzKFhxdWFsKVxuICBpZiAobGVuZ3RoKG1vZGFsaXRlcyk8PTEpIHN0b3AoXCJwYXMgYXNzZXogZGUgbml2ZWF1eCBcXG5cIilcbiAgdGFibCA8LSB0YWJsZShYcXVhbClcbiAgc2VsZWN0aSA8LSAodGFibC9zdW0odGFibCkpPHBcbiAgaWYgKCFhbnkoc2VsZWN0aSkpIHJldHVybihYcXVhbCkgZWxzZSB7XG4gICBsZXNxdWVscyA8LSBtb2RhbGl0ZXNbIXNlbGVjdGldXG4gICBwcm92IDwtIGZhY3RvcihYcXVhbFsoWHF1YWwlaW4lbGVzcXVlbHMpXSxsZXZlbHM9bGVzcXVlbHMpXG4gICBwcm92IDwtIHRhYmxlKHByb3YpXG4gICBwcm9iYSA8LSBwcm92L3N1bShwcm92KVxuICAgZm9yIChqIGluIG1vZGFsaXRlc1tzZWxlY3RpXSkge1xuICAgICMjIHRpcmFnZXMgZGFucyBsZXMgbW9kYWxpdGVzIGF1IGhhc2FyZCBldCByZW1wbGFjZW1lbnRcbiAgICBpZiAobGVuZ3RoKGxlc3F1ZWxzKT09MSl7XG4gICAgIHdhcm5pbmcoXCIxIHNldWxlIG1vZGFsaXRlXFxuXCIpXG4gICAgIFhxdWFsW1hxdWFsPT1qXTwtbGVzcXVlbHNcbiAgICB9IGVsc2UgWHF1YWxbWHF1YWw9PWpdPC1zYW1wbGUobGVzcXVlbHMsc3VtKFhxdWFsPT1qKSxcbiAgICAgICAgICAgICByZXBsYWNlPVRSVUUscHJvYj1wcm9iYSlcbiAgIH1cbiAgIFhxdWFsdmVudCA8LSBmYWN0b3IoYXMuY2hhcmFjdGVyKFhxdWFsKSlcbiAgfVxuICByZXR1cm4oWHF1YWx2ZW50KVxuIH1cbmBgYCJ9 -->
+<pre class="r"><code>ventilation &lt;- function(Xqual,p=0.05) {
+  if (!is.factor(Xqual)) stop(&quot;Xqual doit etre un facteur \n&quot;)
+  modalites &lt;- levels(Xqual)
+  if (length(modalites)&lt;=1) stop(&quot;pas assez de niveaux \n&quot;)
+  tabl &lt;- table(Xqual)
+  selecti &lt;- (tabl/sum(tabl))&lt;p
+  if (!any(selecti)) return(Xqual) else {
+   lesquels &lt;- modalites[!selecti]
+   prov &lt;- factor(Xqual[(Xqual%in%lesquels)],levels=lesquels)
+   prov &lt;- table(prov)
+   proba &lt;- prov/sum(prov)
+   for (j in modalites[selecti]) {
+    ## tirages dans les modalites au hasard et remplacement
+    if (length(lesquels)==1){
+     warning(&quot;1 seule modalite\n&quot;)
+     Xqual[Xqual==j]&lt;-lesquels
+    } else Xqual[Xqual==j]&lt;-sample(lesquels,sum(Xqual==j),
+             replace=TRUE,prob=proba)
+   }
+   Xqualvent &lt;- factor(as.character(Xqual))
+  }
+  return(Xqualvent)
+ }</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2924,9 +2959,13 @@ div.tocify {
 </ol>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudmVudGlsLnRhYiA8LSBmdW5jdGlvbiAodGFiLCBzZXVpbD0wLjA1KSB7XG4gZm9yIChpIGluIDE6bmNvbCh0YWIpKSB7XG4gIGlmIChpcy5mYWN0b3IodGFiWyxpXSkpIHRhYlssaV08LXZlbnRpbGF0aW9uKHRhYlssaV0scD1zZXVpbClcbiB9XG4gcmV0dXJuKHRhYilcbn1cbmBgYFxuYGBgIn0= -->
-<p><code>r</code>r ventil.tab &lt;- function (tab, seuil=0.05) { for (i in 1:ncol(tab)) { if (is.factor(tab[,i])) tab[,i]&lt;-ventilation(tab[,i],p=seuil) } return(tab) }</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmVudGlsLnRhYiA8LSBmdW5jdGlvbiAodGFiLCBzZXVpbD0wLjA1KSB7XG4gZm9yIChpIGluIDE6bmNvbCh0YWIpKSB7XG4gIGlmIChpcy5mYWN0b3IodGFiWyxpXSkpIHRhYlssaV08LXZlbnRpbGF0aW9uKHRhYlssaV0scD1zZXVpbClcbiB9XG4gcmV0dXJuKHRhYilcbn1cbmBgYCJ9 -->
+<pre class="r"><code>ventil.tab &lt;- function (tab, seuil=0.05) {
+ for (i in 1:ncol(tab)) {
+  if (is.factor(tab[,i])) tab[,i]&lt;-ventilation(tab[,i],p=seuil)
+ }
+ return(tab)
+}</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2938,9 +2977,21 @@ div.tocify {
 </ol>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudmVudGlsYXRpb24ub3Jkb25uZWUgPC0gZnVuY3Rpb24oWHF1YWwscD0wLjA1KSB7XG4gIGlmICghaXMub3JkZXJlZChYcXVhbCkpIHN0b3AoXFxYcXVhbCBkb2l0IGV0cmUgdW4gb3Jkb25uZSBcXG5cXClcbiAgbW9kYWxpdGVzIDwtIGxldmVscyhYcXVhbClcbiAgaWYgKGxlbmd0aChtb2RhbGl0ZXMpPD0xKSBzdG9wKFxccGFzIGFzc2V6IGRlIG5pdmVhdXggXFxuXFwpXG4gIHRhYmwgPC0gdGFibGUoWHF1YWwpXG4gIHNlbGVjdGkgPC0gKHRhYmwvc3VtKHRhYmwpKTxwXG4gIGlmICghYW55KHNlbGVjdGkpKSByZXR1cm4oWHF1YWwpIGVsc2Uge1xuICAgIG51bWVybyA8LSB3aGljaChzZWxlY3RpKVxuICAgIHdoaWxlKGFueSgodGFibC9zdW0odGFibCkpPHApKSB7XG4gICAgICBYcXVhbFssaV0gPC0gdmVudGlsYXRpb24oWHF1YWxbLGldKVxuICAgfVxuIH1cbiByZXR1cm4oWHF1YWwpXG59XG5gYGBcbmBgYCJ9 -->
-<p><code>r</code>r ventilation.ordonnee &lt;- function(Xqual,p=0.05) { if (!is.ordered(Xqual)) stop(doit etre un ordonne ) modalites &lt;- levels(Xqual) if (length(modalites)&lt;=1) stop(assez de niveaux ) tabl &lt;- table(Xqual) selecti &lt;- (tabl/sum(tabl))&lt;p if (!any(selecti)) return(Xqual) else { numero &lt;- which(selecti) while(any((tabl/sum(tabl))&lt;p)) { Xqual[,i] &lt;- ventilation(Xqual[,i]) } } return(Xqual) }</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmVudGlsYXRpb24ub3Jkb25uZWUgPC0gZnVuY3Rpb24oWHF1YWwscD0wLjA1KSB7XG4gIGlmICghaXMub3JkZXJlZChYcXVhbCkpIHN0b3AoXCJYcXVhbCBkb2l0IGV0cmUgdW4gb3Jkb25uZSBcXG5cIilcbiAgbW9kYWxpdGVzIDwtIGxldmVscyhYcXVhbClcbiAgaWYgKGxlbmd0aChtb2RhbGl0ZXMpPD0xKSBzdG9wKFwicGFzIGFzc2V6IGRlIG5pdmVhdXggXFxuXCIpXG4gIHRhYmwgPC0gdGFibGUoWHF1YWwpXG4gIHNlbGVjdGkgPC0gKHRhYmwvc3VtKHRhYmwpKTxwXG4gIGlmICghYW55KHNlbGVjdGkpKSByZXR1cm4oWHF1YWwpIGVsc2Uge1xuICAgIG51bWVybyA8LSB3aGljaChzZWxlY3RpKVxuICAgIHdoaWxlKGFueSgodGFibC9zdW0odGFibCkpPHApKSB7XG4gICAgICBYcXVhbFssaV0gPC0gdmVudGlsYXRpb24oWHF1YWxbLGldKVxuICAgfVxuIH1cbiByZXR1cm4oWHF1YWwpXG59XG5gYGAifQ== -->
+<pre class="r"><code>ventilation.ordonnee &lt;- function(Xqual,p=0.05) {
+  if (!is.ordered(Xqual)) stop(&quot;Xqual doit etre un ordonne \n&quot;)
+  modalites &lt;- levels(Xqual)
+  if (length(modalites)&lt;=1) stop(&quot;pas assez de niveaux \n&quot;)
+  tabl &lt;- table(Xqual)
+  selecti &lt;- (tabl/sum(tabl))&lt;p
+  if (!any(selecti)) return(Xqual) else {
+    numero &lt;- which(selecti)
+    while(any((tabl/sum(tabl))&lt;p)) {
+      Xqual[,i] &lt;- ventilation(Xqual[,i])
+   }
+ }
+ return(Xqual)
+}</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2949,9 +3000,13 @@ div.tocify {
 </ol>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxudmVudGlsLm9yZG9ubmVlLnRhYiA8LSBmdW5jdGlvbiAodGFiLCBzZXVpbD0wLjA1KSB7XG4gZm9yIChpIGluIDE6bmNvbCh0YWIpKSB7XG4gIGlmIChpcy5vcmRlcmVkKHRhYlssaV0pKSB0YWJbLGldPC12ZW50aWxhdGlvbi5vcmRvbm5lZSh0YWJbLGldLHNldWlsKVxuIH1cbiByZXR1cm4odGFiKVxufVxuYGBgXG5gYGAifQ== -->
-<p><code>r</code>r ventil.ordonnee.tab &lt;- function (tab, seuil=0.05) { for (i in 1:ncol(tab)) { if (is.ordered(tab[,i])) tab[,i]&lt;-ventilation.ordonnee(tab[,i],seuil) } return(tab) }</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmVudGlsLm9yZG9ubmVlLnRhYiA8LSBmdW5jdGlvbiAodGFiLCBzZXVpbD0wLjA1KSB7XG4gZm9yIChpIGluIDE6bmNvbCh0YWIpKSB7XG4gIGlmIChpcy5vcmRlcmVkKHRhYlssaV0pKSB0YWJbLGldPC12ZW50aWxhdGlvbi5vcmRvbm5lZSh0YWJbLGldLHNldWlsKVxuIH1cbiByZXR1cm4odGFiKVxufVxuYGBgIn0= -->
+<pre class="r"><code>ventil.ordonnee.tab &lt;- function (tab, seuil=0.05) {
+ for (i in 1:ncol(tab)) {
+  if (is.ordered(tab[,i])) tab[,i]&lt;-ventilation.ordonnee(tab[,i],seuil)
+ }
+ return(tab)
+}</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -2974,10 +3029,164 @@ return(max_l)
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="exercice-4.5" class="section level2">
+<h2>Exercice 4.5 :</h2>
+<ol style="list-style-type: decimal">
+<li>Simulons deux variables x et y:</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0LnNlZWQoMTIzNClcbnggPC0gcm5vcm0oNTApXG5lcHNpbG9uIDwtIHJub3JtKDUwKVxueSA8LSAyKyAwLjUqeCArIGVwc2lsb25cbmBgYCJ9 -->
+<pre class="r"><code>set.seed(1234)
+x &lt;- rnorm(50)
+epsilon &lt;- rnorm(50)
+y &lt;- 2+ 0.5*x + epsilon</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<ol start="2" style="list-style-type: decimal">
+<li>On calule le coefficient entre x et y et le test associé, puis on compte le nombre de fois où le coefficient de corrélation entre x et y permuté est plus grand que le coefficient de corrélation observé:</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY29yLnh5PWNvcih4LHkpXG5jb3IudGVzdCh4LHkpXG5gYGAifQ== -->
+<pre class="r"><code>cor.xy=cor(x,y)
+cor.test(x,y)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBlYXJzb24ncyBwcm9kdWN0LW1vbWVudCBjb3JyZWxhdGlvblxuXG5kYXRhOiAgeCBhbmQgeVxudCA9IDIuNTI3NCwgZGYgPSA0OCwgcC12YWx1ZSA9IDAuMDE0ODRcbmFsdGVybmF0aXZlIGh5cG90aGVzaXM6IHRydWUgY29ycmVsYXRpb24gaXMgbm90IGVxdWFsIHRvIDBcbjk1IHBlcmNlbnQgY29uZmlkZW5jZSBpbnRlcnZhbDpcbiAwLjA3MTE0NTYyIDAuNTY2OTcwMTdcbnNhbXBsZSBlc3RpbWF0ZXM6XG4gICAgICBjb3IgXG4wLjM0MjcwNjYgXG4ifQ== -->
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  x and y
+t = 2.5274, df = 48, p-value = 0.01484
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.07114562 0.56697017
+sample estimates:
+      cor 
+0.3427066 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmJzaW09MTAwMDAwXG5zeXN0ZW0udGltZSh7XG5zZXQuc2VlZCgyMzQpXG5zb209MFxuZm9yIChpIGluIDE6bmJzaW0pIHNvbT1zb20rKGNvcih4LHlbc2FtcGxlKGxlbmd0aCh5KSldKT5jb3IueHkpXG59KVxuYGBgIn0= -->
+<pre class="r"><code>nbsim=100000
+system.time({
+set.seed(234)
+som=0
+for (i in 1:nbsim) som=som+(cor(x,y[sample(length(y))])&gt;cor.xy)
+})</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidXRpbGlzYXRldXIgICAgIHN5c3TDqG1lICAgICAgw6ljb3Vsw6kgXG4gICAgICAgNS43OCAgICAgICAgMC4wMiAgICAgICAgNy4yMCBcbiJ9 -->
+<pre><code>utilisateur     système      écoulé 
+       5.78        0.02        7.20 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoc29tL25ic2ltKjIpXG5gYGAifQ== -->
+<pre class="r"><code>print(som/nbsim*2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMDE0NzZcbiJ9 -->
+<pre><code>[1] 0.01476</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>La probabilité critique obtenue par le test classique, 0.01484, est proche de celle calculée par permutation 0.01476.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>On utilise le package parallel et la fonction parLapply</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVxdWlyZShwYXJhbGxlbClcbmNsIDwtIG1ha2VDbHVzdGVyKDMpXG5jbHVzdGVyRXhwb3J0KGNsLCB2YXJsaXN0PWMoXCJ4XCIsXCJ5XCIsXCJjb3IueHlcIikpXG5zeXN0ZW0udGltZSh7XG4gIHNldC5zZWVkKDIzNClcbiAgcmVzIDwtIHBhclNhcHBseShjbCwgMTpuYnNpbSwgZnVuY3Rpb24oYXV4KXsxKihjb3IoeCx5W3NhbXBsZShsZW5ndGgoeSkpXSk+Y29yLnh5KX0pXG59KVxuYGBgIn0= -->
+<pre class="r"><code>require(parallel)
+cl &lt;- makeCluster(3)
+clusterExport(cl, varlist=c(&quot;x&quot;,&quot;y&quot;,&quot;cor.xy&quot;))
+system.time({
+  set.seed(234)
+  res &lt;- parSapply(cl, 1:nbsim, function(aux){1*(cor(x,y[sample(length(y))])&gt;cor.xy)})
+})</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidXRpbGlzYXRldXIgICAgIHN5c3TDqG1lICAgICAgw6ljb3Vsw6kgXG4gICAgICAgMC4wMSAgICAgICAgMC4wMyAgICAgICAgMi4yOCBcbiJ9 -->
+<pre><code>utilisateur     système      écoulé 
+       0.01        0.03        2.28 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RvcENsdXN0ZXIoY2wpXG5tZWFuKHJlcykqMlxuYGBgIn0= -->
+<pre class="r"><code>stopCluster(cl)
+mean(res)*2</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMDE0MlxuIn0= -->
+<pre><code>[1] 0.0142</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>On multiplie par 2 le pourcentage obtenu car le test est bilatéral. On note que le temps de calcul est en gros divisé par 2.6.</p>
+<ol start="4" style="list-style-type: decimal">
+<li>On relance les lignes de code avec <span class="math inline">\(rchisq\)</span> pour générer les aléas:</li>
+</ol>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0LnNlZWQoMTIzNClcbnggPC0gcmNoaXNxKDUwLCBkZj0xKVxuZXBzaWxvbiA8LSByY2hpc3EoNTAsIGRmPTEpXG55IDwtIDIrIDAuNSp4ICsgZXBzaWxvblxuY29yLnh5PWNvcih4LHkpXG5jb3IudGVzdCh4LHkpXG5gYGAifQ== -->
+<pre class="r"><code>set.seed(1234)
+x &lt;- rchisq(50, df=1)
+epsilon &lt;- rchisq(50, df=1)
+y &lt;- 2+ 0.5*x + epsilon
+cor.xy=cor(x,y)
+cor.test(x,y)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5cdFBlYXJzb24ncyBwcm9kdWN0LW1vbWVudCBjb3JyZWxhdGlvblxuXG5kYXRhOiAgeCBhbmQgeVxudCA9IDIuNzg1NSwgZGYgPSA0OCwgcC12YWx1ZSA9IDAuMDA3NjI4XG5hbHRlcm5hdGl2ZSBoeXBvdGhlc2lzOiB0cnVlIGNvcnJlbGF0aW9uIGlzIG5vdCBlcXVhbCB0byAwXG45NSBwZXJjZW50IGNvbmZpZGVuY2UgaW50ZXJ2YWw6XG4gMC4xMDU2NjA3IDAuNTkwMTExM1xuc2FtcGxlIGVzdGltYXRlczpcbiAgICAgIGNvciBcbjAuMzczMDM3MiBcbiJ9 -->
+<pre><code>
+    Pearson's product-moment correlation
+
+data:  x and y
+t = 2.7855, df = 48, p-value = 0.007628
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ 0.1056607 0.5901113
+sample estimates:
+      cor 
+0.3730372 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmJzaW09MTAwMDAwXG5zeXN0ZW0udGltZSh7XG5zZXQuc2VlZCgyMzQpXG5zb209MFxuZm9yIChpIGluIDE6bmJzaW0pIHNvbT1zb20rKGNvcih4LHlbc2FtcGxlKGxlbmd0aCh5KSldKT5jb3IueHkpXG59KVxuYGBgIn0= -->
+<pre class="r"><code>nbsim=100000
+system.time({
+set.seed(234)
+som=0
+for (i in 1:nbsim) som=som+(cor(x,y[sample(length(y))])&gt;cor.xy)
+})</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidXRpbGlzYXRldXIgICAgIHN5c3TDqG1lICAgICAgw6ljb3Vsw6kgXG4gICAgICAgNS43MCAgICAgICAgMC4wMCAgICAgICAgNS43NSBcbiJ9 -->
+<pre><code>utilisateur     système      écoulé 
+       5.70        0.00        5.75 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJpbnQoc29tL25ic2ltKjIpXG5gYGAifQ== -->
+<pre class="r"><code>print(som/nbsim*2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMDI1MlxuIn0= -->
+<pre><code>[1] 0.0252</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVxdWlyZShwYXJhbGxlbClcbmNsIDwtIG1ha2VDbHVzdGVyKDMpXG5jbHVzdGVyRXhwb3J0KGNsLCB2YXJsaXN0PWMoXCJ4XCIsXCJ5XCIsXCJjb3IueHlcIikpXG5zeXN0ZW0udGltZSh7XG4gIHNldC5zZWVkKDIzNClcbiAgcmVzIDwtIHBhclNhcHBseShjbCwgMTpuYnNpbSwgZnVuY3Rpb24oYXV4KXsxKihjb3IoeCx5W3NhbXBsZShsZW5ndGgoeSkpXSk+Y29yLnh5KX0pXG59KVxuYGBgIn0= -->
+<pre class="r"><code>require(parallel)
+cl &lt;- makeCluster(3)
+clusterExport(cl, varlist=c(&quot;x&quot;,&quot;y&quot;,&quot;cor.xy&quot;))
+system.time({
+  set.seed(234)
+  res &lt;- parSapply(cl, 1:nbsim, function(aux){1*(cor(x,y[sample(length(y))])&gt;cor.xy)})
+})</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidXRpbGlzYXRldXIgICAgIHN5c3TDqG1lICAgICAgw6ljb3Vsw6kgXG4gICAgICAgMC4wNSAgICAgICAgMC4wMSAgICAgICAgMi4yOCBcbiJ9 -->
+<pre><code>utilisateur     système      écoulé 
+       0.05        0.01        2.28 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RvcENsdXN0ZXIoY2wpXG4yKm1lYW4ocmVzKVxuYGBgIn0= -->
+<pre class="r"><code>stopCluster(cl)
+2*mean(res)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuMDI0OFxuIn0= -->
+<pre><code>[1] 0.0248</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>La probabilité critique obtenue avec le test classique, 0.007628, est cette fois assez différente de celle obtenue par le test de permutation. En effet, l’hypothèse de normalité n’est pas vérifiée ici et le test classique n’est pas adaptée. On aura donc plus confiance dans l’estimation de la probabilité critique obtenue par le test de permutation : 0.025</p>
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNvcnJlY3Rpb24gZGVzIGV4ZXJjaWNlcyBkdSBjaGFwaXRyZSA0Ig0KYXV0aG9yOiAiSHVzc29uIGV0IGFsLiINCmRhdGU6ICIwOS8wOS8yMDE4Ig0Kb3V0cHV0Og0KICBodG1sX25vdGVib29rOg0KICAgIHRvYzogeWVzDQogICAgdG9jX2RlcHRoOiAzDQogICAgdG9jX2Zsb2F0OiB5ZXMNCiAgaHRtbF9kb2N1bWVudDoNCiAgICB0b2M6IHllcw0KICAgIHRvY19kZXB0aDogJzMnDQogICAgdG9jX2Zsb2F0OiB5ZXMNCi0tLQ0KDQpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0NCmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSwgY2FjaGUgPSBUUlVFKQ0KYGBgDQoNCiMjIEV4ZXJjaWNlIDQuMSA6IEZhY3RvcmllbGxlDQoxLiBDb25zdHJ1Y3Rpb24gZGUgbGEgZm9uY3Rpb24gZmFjdG9yaWVsbGUgYXZlYyBsYSBmb25jdGlvbiAqcHJvZCo6DQpgYGB7cixtZXNzYWdlPUZBTFNFLHdhcm5pbmc9RkFMU0V9DQpmYWN0b3JpZWxsZSA8LSBmdW5jdGlvbihuKSB7DQogIGlmIChuPDApIHN0b3AoImwnZW50aWVyIGRvaXQgw6p0cmUgc3RyaWN0ZW1lbnQgcG9zaXRpZiIpDQogIGlmIChuPT0wKSByZXR1cm4oMSkNCiAgaWYgKGZsb29yKG4pIT1uKSB3YXJuaW5nKHBhc3RlKCJhcnJvbmRpIGRlIixuLCJlbiIsZmxvb3IobikpKQ0KICByZXN1bHRhdCA8LSBwcm9kKDE6bikNCiAgcmV0dXJuKHJlc3VsdGF0KQ0KfQ0KYGBgDQoyLiBDb25zdHJ1Y3Rpb24gZGUgbGEgZm9uY3Rpb24gZmFjdG9yaWVsbGUgYXZlYyB1bmUgYm91Y2xlICpmb3IqOg0KYGBge3IsbWVzc2FnZT1GQUxTRSx3YXJuaW5nPUZBTFNFfQ0KZmFjdG9yaWVsbGUgPC0gZnVuY3Rpb24obikgew0KICBpZiAobjwwKSBzdG9wKCJsJ2VudGllciBkb2l0IMOqdHJlIHN0cmljdGVtZW50IHBvc2l0aWYiKQ0KICBpZiAobj09MCkgcmV0dXJuKDEpDQogIGlmIChmbG9vcihuKSE9bil7DQogICAgd2FybmluZyhwYXN0ZSgiYXJyb25kaSBkZSIsbiwiZW4iLGZsb29yKG4pKSkNCiAgICBuIDwtIGZsb29yKG4pDQogIH0NCiAgcmVzdWx0YXQgPC0gMQ0KICBmb3IgKGkgaW4gMTpuKSByZXN1bHRhdCA8LSByZXN1bHRhdCppDQogIHJldHVybihyZXN1bHRhdCkNCn0NCmZhY3RvcmllbGxlKDUpDQpmYWN0b3JpZWxsZSg0LjIzKQ0KYGBgDQojIyBFeGVyY2ljZSA0LjIgOiBWZW50aWxhdGlvbg0KDQoxLiBDb25zdHJ1aXNvbnMgbGEgZm9uY3Rpb24gZGUgdmVudGlsYXRpb246DQpgYGB7cixtZXNzYWdlPUZBTFNFLHdhcm5pbmc9RkFMU0V9DQp2ZW50aWxhdGlvbiA8LSBmdW5jdGlvbihYcXVhbCxwPTAuMDUpIHsNCiAgaWYgKCFpcy5mYWN0b3IoWHF1YWwpKSBzdG9wKCJYcXVhbCBkb2l0IGV0cmUgdW4gZmFjdGV1ciBcbiIpDQogIG1vZGFsaXRlcyA8LSBsZXZlbHMoWHF1YWwpDQogIGlmIChsZW5ndGgobW9kYWxpdGVzKTw9MSkgc3RvcCgicGFzIGFzc2V6IGRlIG5pdmVhdXggXG4iKQ0KICB0YWJsIDwtIHRhYmxlKFhxdWFsKQ0KICBzZWxlY3RpIDwtICh0YWJsL3N1bSh0YWJsKSk8cA0KICBpZiAoIWFueShzZWxlY3RpKSkgcmV0dXJuKFhxdWFsKSBlbHNlIHsNCiAgIGxlc3F1ZWxzIDwtIG1vZGFsaXRlc1shc2VsZWN0aV0NCiAgIHByb3YgPC0gZmFjdG9yKFhxdWFsWyhYcXVhbCVpbiVsZXNxdWVscyldLGxldmVscz1sZXNxdWVscykNCiAgIHByb3YgPC0gdGFibGUocHJvdikNCiAgIHByb2JhIDwtIHByb3Yvc3VtKHByb3YpDQogICBmb3IgKGogaW4gbW9kYWxpdGVzW3NlbGVjdGldKSB7DQogICAgIyMgdGlyYWdlcyBkYW5zIGxlcyBtb2RhbGl0ZXMgYXUgaGFzYXJkIGV0IHJlbXBsYWNlbWVudA0KICAgIGlmIChsZW5ndGgobGVzcXVlbHMpPT0xKXsNCiAgICAgd2FybmluZygiMSBzZXVsZSBtb2RhbGl0ZVxuIikNCiAgICAgWHF1YWxbWHF1YWw9PWpdPC1sZXNxdWVscw0KICAgIH0gZWxzZSBYcXVhbFtYcXVhbD09al08LXNhbXBsZShsZXNxdWVscyxzdW0oWHF1YWw9PWopLA0KICAgICAgICAgICAgIHJlcGxhY2U9VFJVRSxwcm9iPXByb2JhKQ0KICAgfQ0KICAgWHF1YWx2ZW50IDwtIGZhY3Rvcihhcy5jaGFyYWN0ZXIoWHF1YWwpKQ0KICB9DQogIHJldHVybihYcXVhbHZlbnQpDQogfQ0KYGBgDQoyLiBOb3VzIGFwcGxpcXVvbnMgbGEgZm9uY3Rpb24gZGUgbGEgcXVlc3Rpb24gcHLDqWPDqWRlbnRlIMOgIGNoYXF1ZSBjb2xvbm5lIGR1IHRhYmxlYXUgcXVpIGVzdCB1biBmYWN0ZXVyOg0KYGBge3IsbWVzc2FnZT1GQUxTRSx3YXJuaW5nPUZBTFNFfQ0KdmVudGlsLnRhYiA8LSBmdW5jdGlvbiAodGFiLCBzZXVpbD0wLjA1KSB7DQogZm9yIChpIGluIDE6bmNvbCh0YWIpKSB7DQogIGlmIChpcy5mYWN0b3IodGFiWyxpXSkpIHRhYlssaV08LXZlbnRpbGF0aW9uKHRhYlssaV0scD1zZXVpbCkNCiB9DQogcmV0dXJuKHRhYikNCn0NCmBgYA0KDQojIyBFeGVyY2ljZSA0LjMgOiBWZW50aWxhdGlvbiBzdXIgZmFjdGV1ciBvcmRvbm7DqQ0KDQoxLiBMYSBmb25jdGlvbiBlc3QgaWRlbnRpcXVlIG91IHByZXNxdWUgw6AgY2UgcXVpIGEgw6l0w6kgdnUgZGFucyBsYSBjb3JyZWN0aW9uIGRlIGwnZXhlcmNpY2UgMi4NCk5vdXMgYWpvdXRvbnMgbGEgc29ydGllICgqcmV0dXJuKikgZXQgcXVlbHF1ZXMgY29udHLDtGxlcyA6DQpgYGB7cixtZXNzYWdlPUZBTFNFLHdhcm5pbmc9RkFMU0V9DQp2ZW50aWxhdGlvbi5vcmRvbm5lZSA8LSBmdW5jdGlvbihYcXVhbCxwPTAuMDUpIHsNCiAgaWYgKCFpcy5vcmRlcmVkKFhxdWFsKSkgc3RvcCgiWHF1YWwgZG9pdCBldHJlIHVuIG9yZG9ubmUgXG4iKQ0KICBtb2RhbGl0ZXMgPC0gbGV2ZWxzKFhxdWFsKQ0KICBpZiAobGVuZ3RoKG1vZGFsaXRlcyk8PTEpIHN0b3AoInBhcyBhc3NleiBkZSBuaXZlYXV4IFxuIikNCiAgdGFibCA8LSB0YWJsZShYcXVhbCkNCiAgc2VsZWN0aSA8LSAodGFibC9zdW0odGFibCkpPHANCiAgaWYgKCFhbnkoc2VsZWN0aSkpIHJldHVybihYcXVhbCkgZWxzZSB7DQogICAgbnVtZXJvIDwtIHdoaWNoKHNlbGVjdGkpDQogICAgd2hpbGUoYW55KCh0YWJsL3N1bSh0YWJsKSk8cCkpIHsNCiAgICAgIFhxdWFsWyxpXSA8LSB2ZW50aWxhdGlvbihYcXVhbFssaV0pDQogICB9DQogfQ0KIHJldHVybihYcXVhbCkNCn0NCmBgYA0KMi4gTm91cyBhcHBsaXF1b25zIGxhIGZvbmN0aW9uIGRlIGxhIHF1ZXN0aW9uIHByw6ljw6lkZW50ZSDDoCBjaGFxdWUgY29sb25uZSBkdSB0YWJsZWF1IHF1aSBlc3QgdW4gZmFjdGV1ciBvcmRvbm7DqToNCmBgYHtyLG1lc3NhZ2U9RkFMU0Usd2FybmluZz1GQUxTRX0NCnZlbnRpbC5vcmRvbm5lZS50YWIgPC0gZnVuY3Rpb24gKHRhYiwgc2V1aWw9MC4wNSkgew0KIGZvciAoaSBpbiAxOm5jb2wodGFiKSkgew0KICBpZiAoaXMub3JkZXJlZCh0YWJbLGldKSkgdGFiWyxpXTwtdmVudGlsYXRpb24ub3Jkb25uZWUodGFiWyxpXSxzZXVpbCkNCiB9DQogcmV0dXJuKHRhYikNCn0NCmBgYA0KDQojIyBFeGVyY2ljZSA0LjQgOiBQYXJhbGzDqWxpc2F0aW9uDQoNCmBgYHtyfQ0KbWF4X2luYyA8LSBmdW5jdGlvbihzZXEpIHsNCmRzZXEgPC0gc2VxWy0xXSA+IHNlcVstbGVuZ3RoKHNlcSldOyBjdXJfbCA8LSAxK2RzZXFbMV07IG1heF9sIDwtIGN1cl9sDQpmb3IgKGkgaW4gMToobGVuZ3RoKGRzZXEpLTEpKSB7DQppZiAoZHNlcVtpXSAmJiAoZHNlcVtpXSA9PSBkc2VxW2krMV0pKSB7DQpjdXJfbCA8LSBjdXJfbCArIDE7DQp9IGVsc2UgeyBjdXJfbCA8LSAxK2RzZXFbaSsxXSB9DQptYXhfbCA8LSBtYXgoY3VyX2wsIG1heF9sKQ0KfQ0KcmV0dXJuKG1heF9sKQ0KfQ0KYGBgDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNvcnJlY3Rpb24gZGVzIGV4ZXJjaWNlcyBkdSBjaGFwaXRyZSA0Ig0KYXV0aG9yOiAiSHVzc29uIGV0IGFsLiINCmRhdGU6ICIwOS8wOS8yMDE4Ig0Kb3V0cHV0Og0KICBodG1sX25vdGVib29rOg0KICAgIHRvYzogeWVzDQogICAgdG9jX2RlcHRoOiAzDQogICAgdG9jX2Zsb2F0OiB5ZXMNCiAgaHRtbF9kb2N1bWVudDoNCiAgICB0b2M6IHllcw0KICAgIHRvY19kZXB0aDogJzMnDQogICAgdG9jX2Zsb2F0OiB5ZXMNCi0tLQ0KDQpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0NCmtuaXRyOjpvcHRzX2NodW5rJHNldChlY2hvID0gVFJVRSwgY2FjaGUgPSBUUlVFKQ0KYGBgDQoNCiMjIEV4ZXJjaWNlIDQuMSA6IEZhY3RvcmllbGxlDQoNCjEuIENvbnN0cnVjdGlvbiBkZSBsYSBmb25jdGlvbiBmYWN0b3JpZWxsZSBhdmVjIGxhIGZvbmN0aW9uICpwcm9kKjoNCg0KYGBge3IsbWVzc2FnZT1GQUxTRSx3YXJuaW5nPUZBTFNFfQ0KZmFjdG9yaWVsbGUgPC0gZnVuY3Rpb24obikgew0KICBpZiAobjwwKSBzdG9wKCJsJ2VudGllciBkb2l0IMOqdHJlIHN0cmljdGVtZW50IHBvc2l0aWYiKQ0KICBpZiAobj09MCkgcmV0dXJuKDEpDQogIGlmIChmbG9vcihuKSE9bikgd2FybmluZyhwYXN0ZSgiYXJyb25kaSBkZSIsbiwiZW4iLGZsb29yKG4pKSkNCiAgcmVzdWx0YXQgPC0gcHJvZCgxOm4pDQogIHJldHVybihyZXN1bHRhdCkNCn0NCmBgYA0KDQoyLiBDb25zdHJ1Y3Rpb24gZGUgbGEgZm9uY3Rpb24gZmFjdG9yaWVsbGUgYXZlYyB1bmUgYm91Y2xlICpmb3IqOg0KDQpgYGB7cixtZXNzYWdlPUZBTFNFLHdhcm5pbmc9RkFMU0V9DQpmYWN0b3JpZWxsZSA8LSBmdW5jdGlvbihuKSB7DQogIGlmIChuPDApIHN0b3AoImwnZW50aWVyIGRvaXQgw6p0cmUgc3RyaWN0ZW1lbnQgcG9zaXRpZiIpDQogIGlmIChuPT0wKSByZXR1cm4oMSkNCiAgaWYgKGZsb29yKG4pIT1uKXsNCiAgICB3YXJuaW5nKHBhc3RlKCJhcnJvbmRpIGRlIixuLCJlbiIsZmxvb3IobikpKQ0KICAgIG4gPC0gZmxvb3IobikNCiAgfQ0KICByZXN1bHRhdCA8LSAxDQogIGZvciAoaSBpbiAxOm4pIHJlc3VsdGF0IDwtIHJlc3VsdGF0KmkNCiAgcmV0dXJuKHJlc3VsdGF0KQ0KfQ0KZmFjdG9yaWVsbGUoNSkNCmZhY3RvcmllbGxlKDQuMjMpDQpgYGANCiMjIEV4ZXJjaWNlIDQuMiA6IFZlbnRpbGF0aW9uDQoNCjEuIENvbnN0cnVpc29ucyBsYSBmb25jdGlvbiBkZSB2ZW50aWxhdGlvbjoNCmBgYHtyLG1lc3NhZ2U9RkFMU0Usd2FybmluZz1GQUxTRX0NCnZlbnRpbGF0aW9uIDwtIGZ1bmN0aW9uKFhxdWFsLHA9MC4wNSkgew0KICBpZiAoIWlzLmZhY3RvcihYcXVhbCkpIHN0b3AoIlhxdWFsIGRvaXQgZXRyZSB1biBmYWN0ZXVyIFxuIikNCiAgbW9kYWxpdGVzIDwtIGxldmVscyhYcXVhbCkNCiAgaWYgKGxlbmd0aChtb2RhbGl0ZXMpPD0xKSBzdG9wKCJwYXMgYXNzZXogZGUgbml2ZWF1eCBcbiIpDQogIHRhYmwgPC0gdGFibGUoWHF1YWwpDQogIHNlbGVjdGkgPC0gKHRhYmwvc3VtKHRhYmwpKTxwDQogIGlmICghYW55KHNlbGVjdGkpKSByZXR1cm4oWHF1YWwpIGVsc2Ugew0KICAgbGVzcXVlbHMgPC0gbW9kYWxpdGVzWyFzZWxlY3RpXQ0KICAgcHJvdiA8LSBmYWN0b3IoWHF1YWxbKFhxdWFsJWluJWxlc3F1ZWxzKV0sbGV2ZWxzPWxlc3F1ZWxzKQ0KICAgcHJvdiA8LSB0YWJsZShwcm92KQ0KICAgcHJvYmEgPC0gcHJvdi9zdW0ocHJvdikNCiAgIGZvciAoaiBpbiBtb2RhbGl0ZXNbc2VsZWN0aV0pIHsNCiAgICAjIyB0aXJhZ2VzIGRhbnMgbGVzIG1vZGFsaXRlcyBhdSBoYXNhcmQgZXQgcmVtcGxhY2VtZW50DQogICAgaWYgKGxlbmd0aChsZXNxdWVscyk9PTEpew0KICAgICB3YXJuaW5nKCIxIHNldWxlIG1vZGFsaXRlXG4iKQ0KICAgICBYcXVhbFtYcXVhbD09al08LWxlc3F1ZWxzDQogICAgfSBlbHNlIFhxdWFsW1hxdWFsPT1qXTwtc2FtcGxlKGxlc3F1ZWxzLHN1bShYcXVhbD09aiksDQogICAgICAgICAgICAgcmVwbGFjZT1UUlVFLHByb2I9cHJvYmEpDQogICB9DQogICBYcXVhbHZlbnQgPC0gZmFjdG9yKGFzLmNoYXJhY3RlcihYcXVhbCkpDQogIH0NCiAgcmV0dXJuKFhxdWFsdmVudCkNCiB9DQpgYGANCjIuIE5vdXMgYXBwbGlxdW9ucyBsYSBmb25jdGlvbiBkZSBsYSBxdWVzdGlvbiBwcsOpY8OpZGVudGUgw6AgY2hhcXVlIGNvbG9ubmUgZHUgdGFibGVhdSBxdWkgZXN0IHVuIGZhY3RldXI6DQpgYGB7cixtZXNzYWdlPUZBTFNFLHdhcm5pbmc9RkFMU0V9DQp2ZW50aWwudGFiIDwtIGZ1bmN0aW9uICh0YWIsIHNldWlsPTAuMDUpIHsNCiBmb3IgKGkgaW4gMTpuY29sKHRhYikpIHsNCiAgaWYgKGlzLmZhY3Rvcih0YWJbLGldKSkgdGFiWyxpXTwtdmVudGlsYXRpb24odGFiWyxpXSxwPXNldWlsKQ0KIH0NCiByZXR1cm4odGFiKQ0KfQ0KYGBgDQoNCiMjIEV4ZXJjaWNlIDQuMyA6IFZlbnRpbGF0aW9uIHN1ciBmYWN0ZXVyIG9yZG9ubsOpDQoNCjEuIExhIGZvbmN0aW9uIGVzdCBpZGVudGlxdWUgb3UgcHJlc3F1ZSDDoCBjZSBxdWkgYSDDqXTDqSB2dSBkYW5zIGxhIGNvcnJlY3Rpb24gZGUgbCdleGVyY2ljZSAyLg0KTm91cyBham91dG9ucyBsYSBzb3J0aWUgKCpyZXR1cm4qKSBldCBxdWVscXVlcyBjb250csO0bGVzIDoNCmBgYHtyLG1lc3NhZ2U9RkFMU0Usd2FybmluZz1GQUxTRX0NCnZlbnRpbGF0aW9uLm9yZG9ubmVlIDwtIGZ1bmN0aW9uKFhxdWFsLHA9MC4wNSkgew0KICBpZiAoIWlzLm9yZGVyZWQoWHF1YWwpKSBzdG9wKCJYcXVhbCBkb2l0IGV0cmUgdW4gb3Jkb25uZSBcbiIpDQogIG1vZGFsaXRlcyA8LSBsZXZlbHMoWHF1YWwpDQogIGlmIChsZW5ndGgobW9kYWxpdGVzKTw9MSkgc3RvcCgicGFzIGFzc2V6IGRlIG5pdmVhdXggXG4iKQ0KICB0YWJsIDwtIHRhYmxlKFhxdWFsKQ0KICBzZWxlY3RpIDwtICh0YWJsL3N1bSh0YWJsKSk8cA0KICBpZiAoIWFueShzZWxlY3RpKSkgcmV0dXJuKFhxdWFsKSBlbHNlIHsNCiAgICBudW1lcm8gPC0gd2hpY2goc2VsZWN0aSkNCiAgICB3aGlsZShhbnkoKHRhYmwvc3VtKHRhYmwpKTxwKSkgew0KICAgICAgWHF1YWxbLGldIDwtIHZlbnRpbGF0aW9uKFhxdWFsWyxpXSkNCiAgIH0NCiB9DQogcmV0dXJuKFhxdWFsKQ0KfQ0KYGBgDQoyLiBOb3VzIGFwcGxpcXVvbnMgbGEgZm9uY3Rpb24gZGUgbGEgcXVlc3Rpb24gcHLDqWPDqWRlbnRlIMOgIGNoYXF1ZSBjb2xvbm5lIGR1IHRhYmxlYXUgcXVpIGVzdCB1biBmYWN0ZXVyIG9yZG9ubsOpOg0KYGBge3IsbWVzc2FnZT1GQUxTRSx3YXJuaW5nPUZBTFNFfQ0KdmVudGlsLm9yZG9ubmVlLnRhYiA8LSBmdW5jdGlvbiAodGFiLCBzZXVpbD0wLjA1KSB7DQogZm9yIChpIGluIDE6bmNvbCh0YWIpKSB7DQogIGlmIChpcy5vcmRlcmVkKHRhYlssaV0pKSB0YWJbLGldPC12ZW50aWxhdGlvbi5vcmRvbm5lZSh0YWJbLGldLHNldWlsKQ0KIH0NCiByZXR1cm4odGFiKQ0KfQ0KYGBgDQoNCiMjIEV4ZXJjaWNlIDQuNCA6IFBhcmFsbMOpbGlzYXRpb24NCg0KYGBge3J9DQptYXhfaW5jIDwtIGZ1bmN0aW9uKHNlcSkgew0KZHNlcSA8LSBzZXFbLTFdID4gc2VxWy1sZW5ndGgoc2VxKV07IGN1cl9sIDwtIDErZHNlcVsxXTsgbWF4X2wgPC0gY3VyX2wNCmZvciAoaSBpbiAxOihsZW5ndGgoZHNlcSktMSkpIHsNCmlmIChkc2VxW2ldICYmIChkc2VxW2ldID09IGRzZXFbaSsxXSkpIHsNCmN1cl9sIDwtIGN1cl9sICsgMTsNCn0gZWxzZSB7IGN1cl9sIDwtIDErZHNlcVtpKzFdIH0NCm1heF9sIDwtIG1heChjdXJfbCwgbWF4X2wpDQp9DQpyZXR1cm4obWF4X2wpDQp9DQpgYGANCg0KIyMgRXhlcmNpY2UgNC41IDogDQoNCjEuIFNpbXVsb25zIGRldXggdmFyaWFibGVzIHggZXQgeToNCg0KYGBge3J9DQpzZXQuc2VlZCgxMjM0KQ0KeCA8LSBybm9ybSg1MCkNCmVwc2lsb24gPC0gcm5vcm0oNTApDQp5IDwtIDIrIDAuNSp4ICsgZXBzaWxvbg0KYGBgDQoNCjIuIE9uIGNhbHVsZSBsZSBjb2VmZmljaWVudCBlbnRyZSB4IGV0IHkgZXQgbGUgdGVzdCBhc3NvY2nDqSwgcHVpcyBvbiBjb21wdGUgbGUgbm9tYnJlIGRlIGZvaXMgb8O5IGxlIGNvZWZmaWNpZW50IGRlICBjb3Jyw6lsYXRpb24gZW50cmUgeCBldCB5IHBlcm11dMOpIGVzdCBwbHVzIGdyYW5kIHF1ZSBsZSBjb2VmZmljaWVudCBkZSBjb3Jyw6lsYXRpb24gb2JzZXJ2w6k6DQoNCmBgYHtyfQ0KY29yLnh5PWNvcih4LHkpDQpjb3IudGVzdCh4LHkpDQpuYnNpbT0xMDAwMDANCg0Kc3lzdGVtLnRpbWUoew0Kc2V0LnNlZWQoMjM0KQ0Kc29tPTANCmZvciAoaSBpbiAxOm5ic2ltKSBzb209c29tKyhjb3IoeCx5W3NhbXBsZShsZW5ndGgoeSkpXSk+Y29yLnh5KQ0KfSkNCnByaW50KHNvbS9uYnNpbSoyKQ0KYGBgDQpMYSBwcm9iYWJpbGl0w6kgY3JpdGlxdWUgb2J0ZW51ZSBwYXIgbGUgdGVzdCBjbGFzc2lxdWUsIDAuMDE0ODQsIGVzdCBwcm9jaGUgZGUgY2VsbGUgY2FsY3Vsw6llIHBhciBwZXJtdXRhdGlvbiAwLjAxNDc2Lg0KDQozLiBPbiB1dGlsaXNlIGxlIHBhY2thZ2UgcGFyYWxsZWwgZXQgbGEgZm9uY3Rpb24gcGFyTGFwcGx5DQoNCmBgYHtyfQ0KcmVxdWlyZShwYXJhbGxlbCkNCmNsIDwtIG1ha2VDbHVzdGVyKDMpDQpjbHVzdGVyRXhwb3J0KGNsLCB2YXJsaXN0PWMoIngiLCJ5IiwiY29yLnh5IikpDQpzeXN0ZW0udGltZSh7DQogIHNldC5zZWVkKDIzNCkNCiAgcmVzIDwtIHBhclNhcHBseShjbCwgMTpuYnNpbSwgZnVuY3Rpb24oYXV4KXsxKihjb3IoeCx5W3NhbXBsZShsZW5ndGgoeSkpXSk+Y29yLnh5KX0pDQp9KQ0Kc3RvcENsdXN0ZXIoY2wpDQptZWFuKHJlcykqMg0KYGBgDQpPbiBtdWx0aXBsaWUgcGFyIDIgbGUgcG91cmNlbnRhZ2Ugb2J0ZW51IGNhciBsZSB0ZXN0IGVzdCBiaWxhdMOpcmFsLg0KT24gbm90ZSBxdWUgbGUgdGVtcHMgZGUgY2FsY3VsIGVzdCBlbiBncm9zIGRpdmlzw6kgcGFyIDIuNi4NCg0KNC4gT24gcmVsYW5jZSBsZXMgbGlnbmVzIGRlIGNvZGUgYXZlYyAkcmNoaXNxJCBwb3VyIGfDqW7DqXJlciBsZXMgYWzDqWFzOg0KDQpgYGB7cn0NCnNldC5zZWVkKDEyMzQpDQp4IDwtIHJjaGlzcSg1MCwgZGY9MSkNCmVwc2lsb24gPC0gcmNoaXNxKDUwLCBkZj0xKQ0KeSA8LSAyKyAwLjUqeCArIGVwc2lsb24NCg0KY29yLnh5PWNvcih4LHkpDQpjb3IudGVzdCh4LHkpDQpuYnNpbT0xMDAwMDANCg0Kc3lzdGVtLnRpbWUoew0Kc2V0LnNlZWQoMjM0KQ0Kc29tPTANCmZvciAoaSBpbiAxOm5ic2ltKSBzb209c29tKyhjb3IoeCx5W3NhbXBsZShsZW5ndGgoeSkpXSk+Y29yLnh5KQ0KfSkNCnByaW50KHNvbS9uYnNpbSoyKQ0KDQpyZXF1aXJlKHBhcmFsbGVsKQ0KY2wgPC0gbWFrZUNsdXN0ZXIoMykNCmNsdXN0ZXJFeHBvcnQoY2wsIHZhcmxpc3Q9YygieCIsInkiLCJjb3IueHkiKSkNCnN5c3RlbS50aW1lKHsNCiAgc2V0LnNlZWQoMjM0KQ0KICByZXMgPC0gcGFyU2FwcGx5KGNsLCAxOm5ic2ltLCBmdW5jdGlvbihhdXgpezEqKGNvcih4LHlbc2FtcGxlKGxlbmd0aCh5KSldKT5jb3IueHkpfSkNCn0pDQpzdG9wQ2x1c3RlcihjbCkNCjIqbWVhbihyZXMpDQpgYGANCkxhIHByb2JhYmlsaXTDqSBjcml0aXF1ZSBvYnRlbnVlIGF2ZWMgbGUgdGVzdCBjbGFzc2lxdWUsIDAuMDA3NjI4LCBlc3QgY2V0dGUgZm9pcyBhc3NleiBkaWZmw6lyZW50ZSBkZSBjZWxsZSBvYnRlbnVlIHBhciBsZSB0ZXN0IGRlIHBlcm11dGF0aW9uLiBFbiBlZmZldCwgbCdoeXBvdGjDqHNlIGRlIG5vcm1hbGl0w6kgbidlc3QgcGFzIHbDqXJpZmnDqWUgaWNpIGV0IGxlIHRlc3QgY2xhc3NpcXVlIG4nZXN0IHBhcyBhZGFwdMOpZS4gT24gYXVyYSBkb25jIHBsdXMgY29uZmlhbmNlIGRhbnMgbCdlc3RpbWF0aW9uIGRlIGxhIHByb2JhYmlsaXTDqSBjcml0aXF1ZSBvYnRlbnVlIHBhciBsZSB0ZXN0IGRlIHBlcm11dGF0aW9uIDogMC4wMjU=</div>
 
 
 </div>

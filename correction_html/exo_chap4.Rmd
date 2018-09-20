@@ -18,7 +18,9 @@ knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 
 ## Exercice 4.1 : Factorielle
+
 1. Construction de la fonction factorielle avec la fonction *prod*:
+
 ```{r,message=FALSE,warning=FALSE}
 factorielle <- function(n) {
   if (n<0) stop("l'entier doit être strictement positif")
@@ -28,7 +30,9 @@ factorielle <- function(n) {
   return(resultat)
 }
 ```
+
 2. Construction de la fonction factorielle avec une boucle *for*:
+
 ```{r,message=FALSE,warning=FALSE}
 factorielle <- function(n) {
   if (n<0) stop("l'entier doit être strictement positif")
@@ -127,3 +131,76 @@ return(max_l)
 }
 ```
 
+## Exercice 4.5 : 
+
+1. Simulons deux variables x et y:
+
+```{r}
+set.seed(1234)
+x <- rnorm(50)
+epsilon <- rnorm(50)
+y <- 2+ 0.5*x + epsilon
+```
+
+2. On calule le coefficient entre x et y et le test associé, puis on compte le nombre de fois où le coefficient de  corrélation entre x et y permuté est plus grand que le coefficient de corrélation observé:
+
+```{r}
+cor.xy=cor(x,y)
+cor.test(x,y)
+nbsim=100000
+
+system.time({
+set.seed(234)
+som=0
+for (i in 1:nbsim) som=som+(cor(x,y[sample(length(y))])>cor.xy)
+})
+print(som/nbsim*2)
+```
+La probabilité critique obtenue par le test classique, 0.01484, est proche de celle calculée par permutation 0.01476.
+
+3. On utilise le package parallel et la fonction parLapply
+
+```{r}
+require(parallel)
+cl <- makeCluster(3)
+clusterExport(cl, varlist=c("x","y","cor.xy"))
+system.time({
+  set.seed(234)
+  res <- parSapply(cl, 1:nbsim, function(aux){1*(cor(x,y[sample(length(y))])>cor.xy)})
+})
+stopCluster(cl)
+mean(res)*2
+```
+On multiplie par 2 le pourcentage obtenu car le test est bilatéral.
+On note que le temps de calcul est en gros divisé par 2.6.
+
+4. On relance les lignes de code avec $rchisq$ pour générer les aléas:
+
+```{r}
+set.seed(1234)
+x <- rchisq(50, df=1)
+epsilon <- rchisq(50, df=1)
+y <- 2+ 0.5*x + epsilon
+
+cor.xy=cor(x,y)
+cor.test(x,y)
+nbsim=100000
+
+system.time({
+set.seed(234)
+som=0
+for (i in 1:nbsim) som=som+(cor(x,y[sample(length(y))])>cor.xy)
+})
+print(som/nbsim*2)
+
+require(parallel)
+cl <- makeCluster(3)
+clusterExport(cl, varlist=c("x","y","cor.xy"))
+system.time({
+  set.seed(234)
+  res <- parSapply(cl, 1:nbsim, function(aux){1*(cor(x,y[sample(length(y))])>cor.xy)})
+})
+stopCluster(cl)
+2*mean(res)
+```
+La probabilité critique obtenue avec le test classique, 0.007628, est cette fois assez différente de celle obtenue par le test de permutation. En effet, l'hypothèse de normalité n'est pas vérifiée ici et le test classique n'est pas adaptée. On aura donc plus confiance dans l'estimation de la probabilité critique obtenue par le test de permutation : 0.025
