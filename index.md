@@ -1,5 +1,5 @@
 ---
-title: R pour la statistque et la science des données 
+title: R pour la statistique et la science des données 
 ---
 
 ![Couverture](/pdf/couverture.jpg)
@@ -23,4 +23,4 @@ title: R pour la statistque et la science des données
 * Machine learning
 * Divers
 
-[Version détaillée](/pdf/TableDesMatieres.pdf)
+[Sommaire détaillé](/pdf/TableDesMatieres.pdf)
