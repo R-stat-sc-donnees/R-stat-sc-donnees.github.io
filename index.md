@@ -2,7 +2,7 @@
 title: R pour la statistique et la science des données 
 ---
 
-![Couverture](/pdf/couverture.jpg)
+![Couverture](/pdf/R_stat_sc_donnees.png)
 
 # Sommaire
 
