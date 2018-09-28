@@ -1,0 +1,162 @@
+---
+title: "Analyse de texte"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importation des textes et nettoyage
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(tidyverse)
+ND <- read_lines("https://r-stat-sc-donnees.github.io/NotreDameDeParis.txt",
+                 locale = locale(encoding = "UTF-8"))
+head(ND)
+```
+
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(stringi)
+stringi::stri_enc_detect(paste(read_lines_raw("https://r-stat-sc-donnees.github.io/LesMiserables1.txt",
+                                              n_max = 30), collapse = " "))
+```
+
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(gutenbergr)
+ND <- gutenbergr::gutenberg_strip(ND)
+ND %>% head
+```
+
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+ND <- str_replace_all(ND, "_|--|'", " ")
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+noms <- c("NotreDameDeParis", "LesMiserables1", "LesMiserables2",
+          "LesMiserables3", "LesMiserables4", "LesMiserables5")
+lecture <- function(nom) {
+  read_lines(str_c("https://r-stat-sc-donnees.github.io/",nom, ".txt"),locale = locale(encoding = "UTF-8")) %>%
+    gutenbergr::gutenberg_strip() %>% str_replace_all("_|--|'", " ")
+}
+hugo <- tibble(nom = noms) %>% 
+  mutate(id = if_else(nom == "NotreDameDeParis","ND", str_c("M", str_sub(nom, start = -1L)))) %>%
+  mutate(txt = map(nom, lecture))
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo <- hugo %>% unnest() %>% group_by(id) %>%
+  mutate(ligne = row_number()) %>% ungroup()
+hugo %>% slice(75000:75003)
+```
+# 2. Codage en terme de sac de mots
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(tidytext)
+hugo_tokens <- hugo %>% unnest_tokens(mots, txt)
+hugo_tokens %>% slice(1:5)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_mots <- hugo_tokens %>% group_by(mots) %>% summarize(n = n())
+hugo_mots %>% slice(1000:1005)
+hugo_mots %>% top_n(20, n) %>% arrange(desc(n)) %>% pull(mots)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(stopwords)
+stopwords(language = "fr")
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_mots <- hugo_mots %>%
+  anti_join(get_stopwords("fr"), by = c("mots" = "word")) %>% filter(n>=10)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_mots %>% top_n(20, n) %>% arrange(desc(n)) %>% pull(mots)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+library(wordcloud)
+hugo_mots %>% top_n(100, n) %>% {
+  wordcloud(.[["mots"]], .[["n"]], min.freq = 10, max.words = 100,
+            color = brewer.pal(8,"Dark2"), random.order=FALSE, scale=c(3,.5))
+}
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_tokens <- hugo_tokens %>%
+  mutate(doc_id = str_c(id, sprintf("_%03i",
+                                    (ligne-1) %/% 100 + 1)))
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_mots_doc <- hugo_tokens %>% semi_join(hugo_mots) %>%
+  group_by(doc_id, mots) %>% summarize(n = n())
+hugo_dtm <- hugo_mots_doc %>% spread(mots, n, fill = 0)
+```
+# 3. Analyse des correspondances et visualisation
+
+```{r,fig.width=4,fig.height=4,message=FALSE,warning=FALSE}
+library(FactoMineR)
+hugo_ca <- CA(hugo_dtm %>% as.data.frame() %>%
+                  column_to_rownames("doc_id"), ncp = 1000, graph = FALSE)
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_ca_coord <- hugo_ca$row$coord
+hugo_ca_df <- tibble(doc_id = row.names(hugo_ca_coord),
+                     Dim1 = hugo_ca_coord[,1], Dim2 = hugo_ca_coord[,2],
+                     livre = str_sub(doc_id, 1L, 2L))
+ggplot(hugo_ca_df,aes(x = Dim1, y = Dim2, color = livre, group = livre)) +geom_path() +
+  geom_point() + coord_equal(xlim = c(-1, 1), ylim = c(-1, 1))
+```
+
+# 4. Classification par l’algorithme des k-means
+```{r,results="hide",message=FALSE,warning=FALSE}
+set.seed(42)
+hugo_ca_kmeans <- kmeans(hugo_ca_coord, 4, nstart = 100)
+hugo_ca_df <- hugo_ca_df %>%
+  mutate(classe = as.factor(hugo_ca_kmeans$cluster))
+ggplot(hugo_ca_df, aes(x = doc_id, y = 1, fill = classe)) +
+  geom_raster() + scale_x_discrete(breaks=NULL) +
+  geom_vline(xintercept =669)
+```
+
+
+
+```{r,message=FALSE,warning=FALSE}
+hugo_ca_df %>% select(classe, livre) %>% table()
+```
+
+```{r,results="hide",message=FALSE,warning=FALSE}
+hugo_crit_classe <- hugo_mots_doc %>%
+  left_join(hugo_ca_df %>% select(doc_id, classe)) %>%
+  group_by(classe, mots) %>% summarize(n = sum(n)) %>%
+  mutate(prop = n / sum(n))%>%group_by(mots) %>% mutate(n_tot = sum(n)) %>%
+  ungroup() %>% mutate(prop_tot = n_tot / sum(n),
+                       crit = prop * log(prop / prop_tot))
+hugo_top_classe <- hugo_crit_classe %>%
+  group_by(classe) %>% top_n(20, crit) %>%
+  arrange(desc(crit)) %>% mutate(rank = row_number()) %>%
+  filter(rank <= 20) %>% ungroup()
+ggplot(hugo_top_classe %>%
+         unite(mots_, mots, classe, remove = FALSE) %>%
+         mutate(mots = fct_reorder(mots_,crit)),
+       aes(x = mots, y = crit, fill = classe)) +
+  geom_col() +
+  facet_wrap(~classe, scales = "free") +
+  scale_x_discrete(labels = function(x) {str_match(x, "([^_]*)")}) +
+  coord_flip()
+```
+

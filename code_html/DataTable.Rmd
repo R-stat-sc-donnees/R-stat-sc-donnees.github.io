@@ -1,0 +1,197 @@
+---
+title: "Le package data.table"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 5.1.1 Importation avec fread
+
+```{r,message=FALSE,warning=FALSE}
+library(data.table)
+set.seed(1234)
+dt <- data.table(group1 = c("A", "B"),
+                 group2 = rep(c("C", "D"), each = 5000),
+                 value = rnorm(10000),
+                 weight = sample(1:10, 10000, replace = TRUE))
+dt
+```
+
+```{r}
+write.table(dt,"dt.csv",sep=",",row.names=FALSE,quote=FALSE)
+cat("File size (MB):", round(file.info("dt.csv")$size/1024^2),"\n")
+```
+
+```{r,message=FALSE,warning=FALSE}
+system.time(df <- read.table("dt.csv",sep=",",header=T,stringsAsFactors=F))
+system.time(dt <- fread("dt.csv"))
+all.equal(as.data.table(df),dt)
+```
+
+```{r}
+set.seed(1234)
+n <- 1e6
+dt2 <- data.table(a=sample(1:1000,n,replace=TRUE),
+                    b=runif(n),
+                    c=rnorm(n),
+                    d=sample(c("A","B","C","D"),n,replace=TRUE))
+write.table(dt2,"dt2.csv",sep=",",row.names=FALSE,quote=FALSE)
+cat("Taille en (MB):", round(file.info("dt2.csv")$size/1024^2),"\n")
+system.time(df2 <- read.table("dt2.csv", sep=",", header=TRUE, stringsAsFactors=FALSE))
+system.time(dt2 <- fread("dt2.csv"))
+```
+
+# 5.1.2 Syntaxe
+
+```{r}
+dt[group1 == "A", mean(value), by = group2]
+```
+
+# 5.1.3 Sélection
+
+```{r}
+dt[1:2, ]
+dt[c(1,5)] # virgule optionnelle
+dt[order(value), ]
+```
+
+```{r}
+dt[weight > 9, ] # pas besoin de guillemets
+dt[weight > 9 & group2 == "C", ]
+```
+
+```{r}
+dt[, 1]
+dt[, c(1,3)]
+```
+
+```{r}
+dt[, "group1"]
+dt[, c("group1", "value")]
+```
+
+```{r}
+dt[, list(group1)]
+dt[, list(group1, value)]
+dt[, .(group1, value)]
+dt[, list(mygroup = group1, myvalue = value)][1:2]
+```
+
+```{r,results=FALSE}
+dt$value
+dt[["value"]]
+```
+# 5.1.4 Manipulation
+
+```{r}
+dt[, tval := trunc(value)][1:2]
+```
+```{r}
+dt[, c("tvalue", "rvalue") := list(trunc(value), round(value, 2))]
+dt[, ':=' (tvalue = trunc(value), rvalue = round(value ,2))]
+```
+```{r}
+dt[, tvalue := tvalue + 10] # modification
+dt[, rvalue := NULL] # suppression
+```
+```{r}
+dt[ group1 %in% "A", weight := weight * 10L][1:2]
+```
+```{r}
+dt[is.na(value), value := mean(value, na.rm = TRUE)]
+```
+```{r}
+dt[, sum(value)] # un vecteur
+dt[, list(sum(value))] # un data-table
+dt[, list(somme = sum(value), moyenne = mean(value))]
+```
+```{r}
+dt[group1 == "B" & group2 == "C", list(sum(value), mean(value))]
+```
+```{r}
+dt[, sum(value), by = group1]
+dt[, sum(value), by = "group1"]
+```
+```{r}
+dt[, list(somme = sum(value)), by = list(group1, group2)]
+dt[, list(somme = sum(value)), by = .(group1, group2)]
+dt[, list(somme = sum(value)), by = c("group1", "group2")]
+```
+
+```{r}
+dt[, list(somme = sum(value)), by = list(pop = group1, poids = weight > 5)]
+```
+```{r}
+dt[, mean_group1 := mean(value), by = list(group1)][1:3]
+```
+```{r}
+dt[weight > 5, .N, by = list(group1, group2)][order(-N)]
+```
+```{r}
+dt[, list(mean(value), mean(weight)), by = list(group1, group2)]
+```
+```{r}
+dt[, lapply(.SD, mean), by = list(group1, group2)]
+```
+```{r}
+dt[, lapply(.SD, mean), by = group1, .SDcols = c("value", "weight")]
+```
+```{r}
+dt[, lapply(.SD, mean), by = group1, .SDcols = -c("group2")]
+```
+```{r}
+sd_col <- c("value", "weight")
+new_col <- c("t_value", "t_weight")
+dt[,c(new_col) := lapply(.SD, trunc), .SDcols = sd_col]
+```
+```{r}
+tables()
+```
+```{r}
+shift(1:10, type="lag", fill = NA, n=2L) # "lag" ou "lead"
+```
+```{r}
+setkeyv(dt, "group1")
+key(dt)
+dt["A"] # une valeur
+dt[c("A", "B")] # plusieurs valeurs
+# clés multiples
+setkey(dt, group1, group2)
+dt["A"]
+dt[list("A", c("C", "D"))]
+# supressions des clés
+setkeyv(dt, NULL)
+```
+
+```{r}
+dt <- data.table(x = 1, y = 1)
+dt2 <- dt # nouvelle affectation
+dt2[, y := 2] # modification de y
+dt
+dt2
+```
+```{r}
+dt <- data.table(x = 1, y = 1)
+new_dt <- copy(dt)
+new_dt[, y := 2] # modification de y
+dt
+```
+```{r}
+df <- data.frame(x = 1, y = 1)
+df2 <- df # nouvelle affectation
+df2$y <- 2 # modification de y
+df
+```
+

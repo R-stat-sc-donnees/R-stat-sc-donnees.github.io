@@ -1,0 +1,72 @@
+---
+title: "Test du chi2"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Saisir les données
+
+```{r}
+tab <- matrix(c(592,544,119,97,849,677,504,451,36,14),ncol=5)
+rownames(tab) <- c("Garçon","Fille")
+colnames(tab) <- c("Blond","Roux","Châtain","Brun","Noir de jais")
+```
+
+# 2. Visualiser les données
+
+```{r}
+par(mfrow=c(2,1))
+couleur <- c("Gold","OrangeRed","Goldenrod","Brown","Black")
+barplot(tab[1,],main="Garçon",col=couleur)
+barplot(tab[2,],main="Fille",col=couleur)
+```
+
+# 3. Calculer les profils lignes et les profils colonnes
+
+```{r}
+round(100 * prop.table (tab, margin = 1), 1)
+round(100 * prop.table (tab, margin = 2), 1)
+```
+
+# 4. Construire le test du chi2
+
+```{r}
+resultat <- chisq.test(tab)
+resultat
+```
+
+# 5. Calculer les contributions au chi2
+
+```{r}
+names(resultat)
+```
+
+```{r}
+resultat$statistic
+round(resultat$expected,1)
+```
+
+```{r}
+round(100 * resultat$residuals^2 / resultat$statistic, 1)
+```
+
+```{r}
+round(resultat$residuals, 3)
+```
+
+# Pour aller plus loin
+
+```{r, eval=FALSE}
+tab.cont <- xtabs(~cheveux+sexe, data=donnees)
+chisq.test(tab.cont)
+```
+

@@ -1,0 +1,46 @@
+---
+title: "Intervalle de confiance d'une moyenne"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r}
+don <- read.table("https://r-stat-sc-donnees.github.io/poulpeF.csv",header=TRUE)
+summary(don)
+```
+# 2. Estimation des paramètres (moyenne, écart-type)
+
+```{r}
+mean(don$Poids)
+sd(don$Poids)
+```
+# 3. Distribution des données
+
+```{r}
+hist(don$Poids,main="Distribution des poids",nclass=12,freq=FALSE,xlab="Poids",ylab="")
+lines(density(don$Poids),col="red")
+```
+
+```{r}
+require(ggplot2)
+ggplot(don)+aes(x=Poids,y=..density..)+geom_histogram(bins=12)+ylab("")+
+  geom_line(stat="density",col="red")+ggtitle("Distribution des poids")
+
+```
+
+# 4. Construire l’intervalle de confiance
+```{r}
+t.test(don$Poids,conf.level=0.95)$conf.int
+```
+

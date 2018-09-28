@@ -1,0 +1,69 @@
+---
+title: "Régression multiple"
+author: "Husson et al."
+date: "12 septembre 2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Importer les données
+
+```{r ozone}
+ozone <- read.table("https://r-stat-sc-donnees.github.io/ozone.txt",header=TRUE)
+ozone.m <- ozone[,1:11]
+summary(ozone.m)
+```
+
+# 2. Représenter les variables
+```{r}
+pairs(ozone.m[,1:4])
+```
+
+# 3. Estimer les paramètres
+
+```{r}
+reg.mul <- lm(maxO3~., data=ozone.m)
+summary(reg.mul)
+```
+
+# 4. Choix de variables
+
+```{r,warning=FALSE,message=FALSE}
+ library(leaps)
+ choix <- regsubsets(maxO3~.,data=ozone.m,nbest=1,nvmax=11)
+ plot(choix,scale="bic")
+```
+
+```{r}
+reg.fin <- lm(maxO3~T12+Ne9+Vx9+maxO3v,data=ozone.m)
+summary(reg.fin)
+```
+
+# 5. Analyser les résidus
+
+```{r}
+res.m <- rstudent(reg.fin)
+plot(res.m,pch=15,cex=.5,ylab="Résidus",main="",ylim=c(-3,3))
+abline(h=c(-2,0,2),lty=c(2,1,2))
+```
+
+# 6. Prévoir une nouvelle valeur
+
+```{r}
+xnew <- matrix(c(19,8,2.05,70),nrow=1)
+colnames(xnew) <- c("T12","Ne9","Vx9","maxO3v")
+xnew <- as.data.frame(xnew)
+predict(reg.fin,xnew,interval="pred")
+```
+

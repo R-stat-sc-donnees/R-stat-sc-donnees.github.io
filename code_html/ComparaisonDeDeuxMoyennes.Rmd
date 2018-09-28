@@ -1,0 +1,78 @@
+---
+title: "Comparaison de deux moyennes"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r}
+don <- read.table("https://r-stat-sc-donnees.github.io/poulpe.csv",header=TRUE,sep=";")
+summary(don)
+```
+
+# 2. Comparer graphiquement les deux sous-populations
+
+```{r,fig.width=4,fig.height=4}
+boxplot(Poids ~ Sexe, ylab="Poids", xlab="Sexe", data=don)
+```
+
+```{r,fig.width=4,fig.height=4,message=FALSE,warning=FALSE}
+require(ggplot2)
+ggplot(don)+aes(x=Sexe,y=Poids)+geom_boxplot()
+```
+
+# 3. Estimer les statistiques de base dans chaque groupe
+
+```{r}
+aggregate(don$Poids,by=list(don$Sexe),FUN=summary)
+```
+
+```{r}
+tapply(don$Poids,don$Sexe,sd,na.rm=TRUE)
+```
+ 
+# 4. Tester la normalité des données
+
+```{r}
+select.males <- don[,"Sexe"]=="Male"
+shapiro.test(don[select.males,"Poids"])
+```
+
+# 5. Tester l’égalité des variances
+
+```{r}
+var.test(Poids ~ Sexe,conf.level=.95,data=don)
+```
+
+# 6. Tester l’égalité des moyennes
+```{r}
+t.test(Poids~Sexe, alternative="two.sided", conf.level=.95,
+       var.equal=FALSE, data=don)
+```
+
+```{r}
+t.test(Poids~Sexe, alternative="greater", conf.level=.95,
+       var.equal=FALSE, data=don)
+```
+
+
+# Pour aller plus loin
+
+```{r}
+power.t.test(delta = 1, sd = 3, sig.level = 0.05, power = 0.8)
+```
+
+```{r}
+power.t.test(n = 100, delta = 1, sd = 3, sig.level = 0.05)
+```
+

@@ -1,0 +1,102 @@
+---
+title: "Calibration d'un algorithme avec caret"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r,message=FALSE,warning=FALSE}
+library(kernlab)
+data(spam)
+summary(spam[,56:58])
+```
+
+# 2. L’algorithme des plus proches voisins
+
+```{r}
+set.seed(1234)
+spam1 <- spam[sample(nrow(spam)),]
+app <- spam1[1:3000,]
+valid <- spam1[-(1:3000),]
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(class)
+reg3ppv <- knn(app[,-58],valid[,-58],cl=app$type,k=3)
+mean(reg3ppv!=valid$type)
+```
+
+# 3. Calibration des paramètres
+
+```{r,message=FALSE,warning=FALSE}
+grille.K <- data.frame(k=seq(1,100,by=1))
+library(caret)
+ctrl1 <- trainControl(method="LGOCV",number=1,index=list(1:3000))
+sel.k1 <- train(type~.,data=spam1,method="knn",trControl=ctrl1,tuneGrid=grille.K)
+sel.k1
+```
+
+```{r}
+sel.k1$bestTune
+```
+
+```{r}
+plot(sel.k1)
+```
+
+# 4. Compléments
+
+```{r}
+ctrl2 <- trainControl(method="cv",number=10)
+set.seed(123)
+sel.k2 <- train(type~.,data=spam1,method="knn",trControl=ctrl2,tuneGrid=grille.K)
+sel.k2
+```
+
+```{r}
+ctrl3 <- trainControl(method="repeatedcv",number=10,repeats=2)
+train(type~.,data=spam1,method="knn",trControl=ctrl3,tuneGrid=grille.K)
+```
+
+```{r,message=FALSE,warning=FALSE}
+set.seed(123)
+system.time(sel.k3 <- train(type~.,data=spam1,method="knn",trControl=ctrl2,tuneGrid=grille.K))
+
+library(doParallel)
+cl <- makePSOCKcluster(4)
+registerDoParallel(cl)     ## les clusters seront fermés en fin de programme
+set.seed(123)
+system.time(sel.k4 <- train(type~.,data=spam1,method="knn",trControl=ctrl2,tuneGrid=grille.K))
+```
+
+```{r}
+ctrl3 <- trainControl(method="LGOCV",number=1,index=list(1:3000),classProbs=TRUE,summary=twoClassSummary)
+sel.k5 <- train(type~.,data=spam1,method="knn",trControl=ctrl3,metric="ROC",tuneGrid=grille.K)
+sel.k5
+```
+
+```{r}
+getTrainPerf(sel.k5)
+```
+
+# Pour aller plus loin
+
+```{r}
+ctrl3 <- trainControl(method="repeatedcv",number=10,repeats=20)
+train(type~.,data=spam1,method="knn",trControl=ctrl3,tuneGrid=grille.K)
+```
+```{r}
+stopCluster(cl)
+```
+
+

@@ -1,0 +1,99 @@
+---
+title: "Regression Logistique"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r}
+bank <- read.table("https://r-stat-sc-donnees.github.io/bank-additional.csv",header=TRUE,sep=";")
+summary(bank)[,c(1:3,21)]
+```
+
+# 2. Construire le modèle
+
+```{r }
+set.seed(5678)
+perm <- sample(nrow(bank),3000)
+app <- bank[perm,]
+test <- bank[-perm,]
+```
+
+```{r}
+logit_complet <- glm(y~.,data=app,family=binomial)
+```
+
+```{r}
+coef(logit_complet)[is.na(coef(logit_complet))]
+```
+
+```{r}
+table(app$loan,app$housing)
+```
+
+```{r}
+summary(logit_complet)
+```
+
+```{r, message=FALSE,warning=FALSE}
+library(car)
+Anova(logit_complet,type=3,test.statistic = "LR",singular.ok=TRUE)
+```
+
+# 3. Sélectionner un modèle
+
+```{r}
+logit_step <- step(logit_complet,direction="backward", trace=0)
+Anova(logit_step,type=3,test.statistic = "LR")
+```
+
+```{r}
+anova(logit_step,logit_complet,test="LRT")
+```
+
+# 4. Faire de la prévision
+
+```{r}
+prev_step <- predict(logit_step,newdata=test,type="response")
+prev_step[1:5]
+```
+
+```{r}
+prev_prob <- data.frame(complet=predict(logit_complet,newdata=test,
+type="response"),step=predict(logit_step,newdata=test,type="response"))
+head(round(prev_prob,3), n=3)
+```
+```{r}
+prev_class <- apply(prev_prob>=0.5,2,factor,labels=c("no","yes"))
+head(prev_class, n=3)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+prev_class <- data.frame(prev_class)
+prev_class %>% mutate(obs=test$y) %>%
+summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(plotROC)
+df_roc <- prev_prob %>% mutate(obs=test$y) %>%
+gather(key=methode,value=score,complet,step)
+ggplot(df_roc)+aes(d=obs,m=score,color=methode)+ geom_roc()+
+theme_classic()
+```
+
+```{r}
+df_roc %>% group_by(methode) %>% summarize(AUC=pROC::auc(obs,score))
+```
+

@@ -1,0 +1,125 @@
+---
+title: "Regression PLS"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+# 1. Importer les données
+
+```{r}
+don <- read.table("https://r-stat-sc-donnees.github.io/spe_bretagne.txt", sep=";", header=TRUE, row.names=1)
+```
+
+```{r}
+moy.ligne <- apply(don[,-1], 1, mean)
+don[,-1] <- sweep(don[,-1], 1, moy.ligne, FUN="-")
+et.ligne <- apply(don[,-1], 1, sd)
+don[,-1] <- sweep(don[,-1], 1, et.ligne, FUN="/")
+```
+
+# 2. Représenter les données
+```{r}
+hist(don[,"CO"], prob=TRUE, main="", xlab="Teneur en carbone organique")
+lines(density(don[,"CO"]))
+rug(don[,"CO"], col="red")
+```
+
+```{r}
+which(don[,1]>8)
+max(don[-79,1])
+```
+
+```{r}
+don <- don[-79,]
+```
+
+```{r}
+coul <- as.numeric(cut(don[,1], quantile(don[,1], prob=seq(0,1,by=1/7)),
+include.lowest = TRUE))
+palette(terrain.colors(7,alpha=0.5))
+lity <- coul
+matplot(x=400:2500, y=t(as.matrix(don[,-1])), type="l", lty=1,
+col=coul, xlab="Longueur d’onde", ylab="Réflectance")
+```
+
+# 3. Effectuer une régression PLS après avoir choisi le nombre de composantes PLS
+
+```{r}
+library(pls)
+modele.pls <- plsr(CO~., ncomp=100, data=don,scale=TRUE,validation="CV")
+```
+
+```{r}
+msepcv.pls <- MSEP(modele.pls, estimate=c("train","CV"))
+palette("default") ## retour aux couleurs habituelles
+plot(msepcv.pls, lty=1, type="l", legendpos="topright", main="")
+```
+```{r}
+ncomp.pls <- which.min(msepcv.pls$val["CV",,])-1
+ncomp.pls
+```
+
+```{r}
+reg.pls <- plsr(CO~., ncomp=ncomp.pls, data=don, scale=TRUE)
+```
+
+# 4. Analyser les résidus
+
+```{r}
+res.pls <- residuals(reg.pls)
+plot(res.pls[,,ncomp.pls],pch=15,cex=.5,ylab="Résidus",main="")
+abline(h=c(-2,0,2), lty=c(2,1,2))
+```
+
+# 5. Prévoir une nouvelle valeur
+
+```{r}
+donN <- read.table("https://r-stat-sc-donnees.github.io/spe_nouveau.txt", sep=";", header=TRUE, row.names=1)
+moy.ligneN <- apply(donN[,-1], 1, mean)
+donN[,-1] <- sweep(donN[,-1], 1, moy.ligneN, FUN="-")
+318
+et.ligneN <- apply(donN[,-1], 1, sd)
+donN[,-1] <- sweep(donN[,-1], 1, et.ligneN, FUN="/")
+```
+
+```{r}
+pred <- predict(reg.pls, ncomp=ncomp.pls, newdata=donN[,-1])
+```
+
+```{r}
+donN[,1]
+```
+
+# Pour aller plus loin
+```{r}
+plot(reg.pls, plottype="coef", comps=1:ncomp.pls, main="",
+legendpos="topleft", xlab="Longueur d’onde", lty=1,labels=400:2500)
+```
+
+```{r}
+colo <- rep(1,nrow(don))
+colo[substr(rownames(don),0,4)=="rmqs"] <- 2
+plot(reg.pls, plottype="scores", comps=c(1,2), col=colo, asp=1)
+abline(h=0,lty=2)
+abline(v=0,lty=2)
+```
+
+```{r}
+coul <- gray(seq(0,.9,len=ncol(don)))
+plot(modele.pls,plottype="correlation",comps=1:2,col=coul,pch=20)
+```
+
+```{r}
+plot(modele.pls,plottype="loadings", labels=400:2500, comps=1:ncomp.pls,
+legendpos="topright",lty=1, xlab="Longueur d’onde", ylab="Loadings")
+abline(h=0,lty=2)
+```
+

@@ -1,0 +1,27 @@
+---
+title: "Tests sur les proportions"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Tester, chez les individus blonds, si la proportion de garçons est égale à 50 %
+
+```{r}
+binom.test(x=592,n=1136,p=0.5,alternative="two.sided")
+```
+
+# 2. Tester l’égalité des proportions de filles pour les différentes couleurs de cheveux
+
+```{r,fig.width=4,fig.height=4}
+prop.test(c(544,97,677,451,14),n=c(1136,216,1526,955,50))
+```
+

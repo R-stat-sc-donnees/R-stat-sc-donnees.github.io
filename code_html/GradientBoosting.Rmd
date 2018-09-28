@@ -1,0 +1,103 @@
+---
+title: "Gradient Boosting"
+author: "Husson et al."
+date: "6 septembre 2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Importer les données
+```{r,message=FALSE,warning=FALSE}
+library(kernlab)
+data(spam)
+```
+Mise en forme pour gbm
+```{r}
+spam$type <- as.numeric(spam$type)-1
+```
+
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+valid <- spam[-perm,]
+```
+
+
+# 2. Construire et analyser l’algorithme de gradient boosting
+
+```{r,message=FALSE,warning=FALSE}
+library(gbm)
+set.seed(1234)
+gbm(type~., data=app, distribution="adaboost", shrinkage=0.01, n.trees=3000)
+```
+
+# 3. Sélectionner le nombre d’itérations
+
+```{r}
+set.seed(1234)
+mod.ada <- gbm(type~.,data=app,distribution="adaboost",cv.folds=5, shrinkage=0.01,n.trees=3000)
+set.seed(567)
+mod.logit <- gbm(type~.,data=app,distribution="bernoulli",cv.folds=5, shrinkage=0.05,n.trees=3000)
+```
+
+```{r}
+Mopt.ada <- gbm.perf(mod.ada,method="cv")
+Mopt.ada
+Mopt.logit <- gbm.perf(mod.logit,method="cv")
+Mopt.logit
+```
+
+# 4. Faire de la prévision
+
+```{r}
+prev.ada <- predict(mod.ada,newdata=valid,type="response", n.trees=Mopt.ada)
+head(round(prev.ada,3))
+prev.logit <- predict(mod.logit,newdata=valid,type="response", n.trees=Mopt.ada)
+head(round(prev.logit,3))
+```
+
+# 5. Estimer les performances d’un algorithme de gradient boosting
+
+```{r,message=FALSE,warning=FALSE}
+prev.prob <- data.frame(ada=prev.ada,logit=prev.logit,obs=valid$type)
+head(round(prev.prob,3))
+```
+
+```{r}
+prev.class <- round(prev.prob)
+head(prev.class)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(tidyverse)
+prev.class %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(plotROC)
+df.roc <- prev.prob %>% gather(key=Methode,value=score,ada,logit)
+ggplot(df.roc)+aes(d=obs,m=score,color=Methode)+ geom_roc()+theme_classic()
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(pROC)
+df.roc %>% group_by(Methode) %>% summarize(AUC=pROC::auc(obs,score))
+```
+
+# 6. Interpréter un algorithme de gradient boosting
+
+```{r}
+summary(mod.logit)[1:10,]
+```

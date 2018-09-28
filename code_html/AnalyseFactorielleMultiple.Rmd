@@ -1,0 +1,69 @@
+---
+title: "Analyse Factorielle Multiple"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r}
+QteVie <- read.table("https://r-stat-sc-donnees.github.io/QteVie.csv", header = TRUE, sep = ";", quote = "", check.names = FALSE, row.names = 1, fileEncoding = "latin1")
+summary(QteVie)
+```
+
+
+
+# 2 et 3. Choisir les groupes de variables
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR)
+afm <- MFA(QteVie, group = c(5,5,3,6,3,1), type = c(rep("s",5),"n"), name.group = c("Bien-être matériel","Emploi","Satisfaction","Santé et sécurité","Enseignement","Région"), num.group.sup = 6)
+```
+
+# 4. Choisir le nombre d’axes
+
+```{r,fig.width=6,fig.height=5}
+barplot(afm$eig[,2], names = paste("Dim", 1:nrow(afm$eig)))
+```
+
+# 5. Analyser les résultats
+
+```{r,message=FALSE,warning=FALSE}
+summary(afm, nbelement = 10, nb.dec = 2, ncp = 2)
+```
+
+```{r,message=FALSE,warning=FALSE}
+round(afm$group$RV, 2)
+```
+
+
+```{r,message=FALSE,warning=FALSE}
+plot(afm, partial = c("France","Autriche"), invisible = "quali")
+```
+
+```{r,message=FALSE,warning=FALSE}
+plot(afm, invisible = "quali", partial = "all", xlim = c(-5,5),
+     ylim = c(-5,5), 
+     palette = palette(c("black", "transparent", "transparent", "blue", "transparent", "transparent")),
+     title = "Graphe des points partiels sur la satisfaction")
+```
+
+
+# Factoshiny
+
+```{r,message=FALSE,warning=FALSE, eval = FALSE}
+library(Factoshiny)
+res.shiny <- MFAshiny(QteVie)
+```
+
+
+

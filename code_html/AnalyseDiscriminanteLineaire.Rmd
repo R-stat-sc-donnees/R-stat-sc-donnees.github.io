@@ -1,0 +1,82 @@
+---
+title: "Analyse discriminante linéaire"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r}
+donnees <- read.table("https://r-stat-sc-donnees.github.io/ronfle.txt",header=TRUE)
+summary(donnees)
+```
+
+# 2. Construire le modèle
+
+```{r,warning=FALSE,message=FALSE}
+library(MASS)
+mod.complet <- lda(ronfle~.,data=donnees)
+mod.complet
+```
+
+```{r}
+plot(mod.complet)
+```
+
+# 3. Sélectionner des variables
+
+```{r}
+mat.X <- model.matrix(ronfle~.,data=donnees)[,-1]
+head(mat.X)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(klaR)
+ronfle <- donnees$ronfle
+set.seed(1234)
+sel <- stepclass(mat.X,donnees$ronfle,method="lda",direction="both",maxvar=6)
+```
+
+```{r}
+mod.sel <- lda(sel$formula,data=donnees)
+mod.sel
+```
+
+# 4. Estimer le taux de mauvais classement
+
+```{r}
+prev.complet <- lda(ronfle~.,data=donnees,CV=TRUE)$class
+prev.sel <- lda(sel$formula,data=donnees,CV=TRUE)$class
+```
+
+
+```{r}
+table(prev.complet,donnees$ronfle)
+table(prev.sel,donnees$ronfle)
+```
+
+```{r}
+mean(prev.complet!=donnees$ronfle)
+mean(prev.sel!=donnees$ronfle)
+```
+
+
+# 5. Faire de la prévision
+```{r}
+n_don1 <- matrix(c(42,55,169,0,58,94,185,4,35,70,180,6,67,63,166,3),ncol=4,byrow=T)
+n_don2 <- matrix(c("F","N","H","O","H","O","F","N"),ncol=2,byrow=T)
+n_donnees <- cbind.data.frame(n_don1,n_don2)
+names(n_donnees) <- names(donnees)[-6]
+predict(mod.sel,newdata=n_donnees)
+
+```
+

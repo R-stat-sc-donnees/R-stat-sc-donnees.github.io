@@ -1,0 +1,69 @@
+---
+title: "Modèles de mélange"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 1. Importer les données
+
+```{r,message=FALSE,warning=FALSE}
+library(HDclassif)
+data(crabs)
+don <- crabs[ , 4:ncol(crabs)]
+summary(don)
+```
+
+# 2 Choix du modèle et du nombre de classes
+
+```{r,message=FALSE,warning=FALSE}
+library(mclust)
+res.BIC <- mclustBIC(don, verbose = F)
+plot(res.BIC)
+summary(res.BIC)
+```
+# 3. Construction de la classification
+
+```{r}
+mod <- Mclust(don, x = res.BIC)
+summary(mod)
+table(mod$classification)
+```
+
+# 4. Caractériser les classes
+
+```{r,message=FALSE,warning=FALSE}
+don.comp <- cbind.data.frame(don,classe=factor(mod$classification))
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR)
+catdes(don.comp, num.var = 6)
+```
+
+# Pour aller plus loin
+
+```{r,message=FALSE,warning=FALSE}
+load(url("https://r-stat-sc-donnees.github.io/USPS358.Rdata"))  ### charge le jeu de données sur votre ordinateur
+image(matrix(t(X[5,]), ncol = 16))
+```
+
+```{r}
+res.hddc <- hddc(X, 3)
+table(res.hddc$class,cls)
+adjustedRandIndex(res.hddc$class,cls)
+```
+
+

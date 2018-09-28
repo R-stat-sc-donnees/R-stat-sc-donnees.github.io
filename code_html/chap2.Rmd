@@ -1,0 +1,180 @@
+---
+title: "Chapitre 2 : manipuler les données"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 2.1.1 Importation d’un fichier texte
+
+```{r,message=FALSE,warning=FALSE}
+decath <- read.table("https://r-stat-sc-donnees.github.io/decathlon.csv",
+                     sep=";",dec=".",header=T,row.names=1)
+```
+
+```{r}
+tablo <- read.table("https://r-stat-sc-donnees.github.io/donnees2.csv",sep=" ",header=TRUE,
+                    na.strings = ".")
+summary(tablo)
+```
+
+```{r}
+data(iris)
+```
+
+# 2.3 Manipuler les variables
+
+```{r}
+X <- c(rep(10,3),rep(12,2),rep(13,4))
+X
+is.factor(X)
+is.numeric(X)
+summary(X)
+Xqual <- factor(X)
+Xqual
+summary(Xqual)
+```
+```{r}
+## conversion avec recodage des modalités
+as.numeric(Xqual)
+## conversion sans recodage des modalités : 2 étapes
+provisoire <- as.character(Xqual)
+provisoire
+as.numeric(provisoire)
+```
+```{r}
+set.seed(654) ## fixe la graine du générateur pseudo-aléatoire
+X <- rnorm(15,mean=0,sd=1)
+X
+Xqual <- cut(X,breaks=c(min(X),-0.2,0.2,max(X)),include.lowest=TRUE)
+Xqual
+table(Xqual)
+Xqual
+decoupe <- quantile(X,probs=seq(0,1,length=4))
+Xqual <- cut(X,breaks=decoupe,include.lowest=TRUE)
+table(Xqual)
+levels(Xqual) <- c("niv1","niv2","niv3")
+Xqual
+levels(Xqual) <- c("niv1+3","niv2","niv1+3")
+Xqual
+X <- c(1,1,2,2,2,3)
+Xqual <- factor(X,label=c("classique","nouveau","placebo"))
+Xqual
+Xqual2 <- relevel(Xqual,ref="placebo")
+Xqual2
+Xqual3 <- factor(Xqual,levels=c("placebo","nouveau","classique"))
+Xqual3
+facteur <- factor(c(rep("A",3),"B",rep("C",4)))
+facteur
+facteur2 <- facteur[-4]
+facteur2
+facteur2 <- as.character(facteur2)
+facteur2 <- factor(facteur2)
+facteur2
+facteur3 <- facteur[-4,drop=TRUE]
+facteur3
+```
+
+# 2.4 Manipuler les individus
+
+```{r}
+set.seed(23)
+variable <- rnorm(10,mean=0,sd=1)
+variable[c(3,4,6)] <- NA
+select <- is.na(variable)
+select
+which(select)
+variable2 <- variable[!select]
+variable2
+variable3 <- variable[-which(select)]
+all.equal(variable2,variable3)
+varqual <- factor(c(rep("M",3),NA,NA,rep("F",5)))
+don <- cbind.data.frame(variable,varqual)
+don
+summary(don)
+select <- is.na(don)
+select
+aeliminer <- apply(select,MARGIN=1,FUN=any)
+aeliminer
+don2 <- don[!aeliminer,]
+don2
+which(is.na(don),arr.ind=TRUE)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(rpart)
+data(kyphosis)
+boxplot(kyphosis[,"Number"])
+resultat <- boxplot(kyphosis[,"Number"])
+valaberrante <- resultat$out
+valaberrante
+which(kyphosis[,"Number"]%in%valaberrante)
+X <- data.frame(C1=c("a","b","b","a","a"),C2=c(1,2,2,3,1))
+X
+unique(X)
+duplicated(X)
+X[duplicated(X),]
+```
+
+# 2.5 Concaténer des tableaux de données
+
+```{r}
+X <- matrix(c(1,2,3,4),2,2)
+rownames(X) <- paste("ligne",1:2,sep="")
+colnames(X) <- paste("X",1:2,sep="")
+X
+Y <- matrix(11:16,3,2)
+colnames(Y) <- paste("Y",1:2,sep="")
+Y
+Z <- rbind(X,Y)
+Z
+Xd <- data.frame(X)
+Yd <- data.frame(Y)
+colnames(Yd) <- c("X2","X1")
+rbind(Xd,Yd)
+X <- matrix(c(1,2,3,4),2,2)
+rownames(X) <- paste("ligne",1:2,sep="")
+Y <- matrix(11:16,2,3)
+cbind(data.frame(X),Y)
+```
+```{r}
+age <- c(7,38,32)
+prenom <- c("arnaud","nicolas","laurent")
+ville <- factor(c("rennes","rennes","marseille"))
+indiv <- cbind.data.frame(age,prenom,ville)
+indiv
+population <- c(200,500,800)
+caractvilles <- cbind.data.frame(c("rennes","lyon","marseille"),population)
+names(caractvilles) <- c("ville","pop")
+caractvilles
+merge(indiv,caractvilles,by="ville")
+```
+
+# 2.6 Tableau croisé
+
+```{r}
+tension <- factor(c(rep("Faible",5),rep("Forte",5)))
+tension
+laine <- factor(c(rep("Mer",3),rep("Ang",3),rep("Tex",4)))
+laine
+don <- cbind.data.frame(tension,laine)
+don
+table(don$tension,don$laine)
+tabcroise <- xtabs(~tension+laine,data=don)
+tabcroise
+tabframe <- as.data.frame(tabcroise)
+tabframe
+```
+

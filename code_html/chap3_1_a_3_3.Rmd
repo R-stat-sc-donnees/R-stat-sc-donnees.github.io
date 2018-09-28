@@ -1,0 +1,297 @@
+---
+title: 'Chapitre 3 : Visualiser les données'
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook: default
+  html_document:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+```{r, echo=FALSE}
+setwd("C:/Users/husson/Dropbox/Rpourlastatetladatascience/chapitre/cartes/DONNEES")
+```
+
+# 3.1 Les fonctions graphiques conventionnelles
+
+```{r}
+ozone <- read.table("https://r-stat-sc-donnees.github.io/ozone.txt",header=T)
+ozone <- ozone[,c("T12","maxO3","vent","pluie","Vx12")]
+summary(ozone)
+```
+
+## 3.1.1 La fonction plot
+
+```{r}
+plot(maxO3~T12,data=ozone)
+```
+
+```{r}
+plot(maxO3~vent,data=ozone,xlab="Secteur du vent",ylab="Pic d’ozone")
+```
+
+```{r}
+boxplot(maxO3~vent,data=ozone)
+```
+
+```{r}
+plot(pluie~vent,data=ozone)
+```
+
+```{r}
+plot(ozone[,"T12"],ozone[,"vent"],pch=3,yaxt="n",xlab="T12",ylab="vent")
+axis(side=2,at=1:4,labels=levels(ozone[,"vent"]))
+```
+
+```{r}
+plot(ozone[,"maxO3"], xlab="num.", ylab="maxO3", cex=.5, pch=16)
+```
+
+```{r}
+plot(ozone[,"maxO3"], xlab="num.", ylab="maxO3", type="l")
+```
+
+## 3.1.2 Représentation d'une distribution
+
+```{r}
+hist(ozone[,"maxO3"], main="Histogramme", prob=TRUE, xlab="Ozone", col="lightblue")
+```
+```{r}
+plot(density(ozone[,"maxO3"]), main="Estimateur à noyau", xlab="Ozone")
+```
+```{r}
+plot(ozone[,"vent"])
+```
+```{r}
+barplot(table(ozone[,"vent"]))
+```
+
+## 3.1.3 Ajouts aux graphiques
+
+```{r}
+plot(maxO3~T12,data=ozone, pch=20)
+text(ozone[,"T12"],ozone[,"maxO3"], substr(rownames(ozone),5,8), cex=.75, pos=3, offset=.3)
+abline(v=27,lty=2)
+```
+```{r}
+plot(ozone[1:7,"maxO3"],type="l")
+lines(ozone[8:14,"maxO3"],col="red") # ajout de la 2ème semaine
+```
+
+```{r}
+ecarty <- range(ozone[1:7,"maxO3"],ozone[8:14,"maxO3"])
+plot(ozone[1:7,"maxO3"],type="l",ylim=ecarty,lty=1)
+lines(ozone[8:14,"maxO3"],col="red",lty=1)
+```
+## 3.1.4 Graphiques en plusieurs dimensions
+
+```{r}
+f <- function(x,y){10*sin(sqrt(x^2+y^2))/sqrt(x^2+y^2)}
+y <- x <- seq(-10,10,length=30)
+z <- outer(x,y,f)
+persp(x,y,z,theta=30,phi=30,expand=0.5)
+zfacette <- (z[-1,-1]+z[-1,-30]+z[-30,-1]+z[-30,-30])/4
+niveaucouleur <- cut(zfacette,100)
+couleurs <- heat.colors(100)[niveaucouleur]
+persp(x,y,z,theta=30,phi=30,expand=0.5,col=couleurs)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(rgl)
+rgl.surface(x,y,z)
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(lattice)
+cloud(maxO3~T12+Vx12,type=c("p","h"),data=ozone)
+```
+
+```{r}
+plot3d(ozone[,"T12"],ozone[,"Vx12"],ozone[,"maxO3"],radius=2,xlab="T12", ylab="Vx12",zlab="maxO3",type="s")
+```
+
+## 3.1.5 Exportation de graphiques
+
+```{r,eval=FALSE}
+pdf("graphik.pdf")
+ecarty <- range(ozone[1:7,"maxO3"],ozone[8:14,"maxO3"])
+plot(ozone[1:7,"maxO3"],type="l",ylim=ecarty,lty=1)
+lines(ozone[8:14,"maxO3"],col="red",lty=1)
+dev.off()
+```
+
+## 3.1.6 Plusieurs graphiques
+
+```{r}
+par(mfrow=c(1,2))
+plot(1:10,10:1,pch=0)
+plot(rep(1,4),type="l")
+```
+
+```{r}
+mat <- matrix(c(1,1,2,3),nrow=2,ncol=2,byrow=TRUE)
+layout(mat)
+plot(1:10,10:1,pch=0)
+plot(rep(1,4),type="l")
+plot(c(2,3,-1,0),type="b")
+```
+
+# 3.2 Les fonctions graphiques avec ggplot2
+
+## 3.2.1 Premiers graphes avec ggplot2
+
+```{r,warning=FALSE,message=FALSE}
+library(ggplot2)
+set.seed(1234)
+diamonds2 <- diamonds[sample(nrow(diamonds),5000),]
+ggplot(diamonds2)+aes(x=cut)+geom_bar()
+ggplot(diamonds2)+aes(x=price)+geom_histogram()
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point()
+```
+
+## 3.2.2 La grammaire ggplot
+
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price,color=cut)
+ggplot(diamonds2)+aes(x=carat,y=price,color=cut)+geom_point()
+```
+
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point(color="red")
+ggplot(diamonds2)+aes(x=cut)+geom_bar(fill="blue")
+```
+
+```{r}
+D <- data.frame(X=seq(-2*pi,2*pi,by=0.01))
+ggplot(D)+aes(x=X,y=sin(X))+geom_line()
+```
+
+```{r}
+ggplot(diamonds2)+aes(x=price)+geom_histogram(bins=40)
+ggplot(diamonds2)+aes(x=price,y=..count..)+geom_histogram(bins=40)
+ggplot(diamonds2)+aes(x=price,y=..density..)+geom_histogram(bins=40)
+ggplot(diamonds2)+aes(x=price)+stat_bin(bins=40)
+ggplot(diamonds2)+aes(x=price,y=..density..)+stat_bin(bins=40)
+```
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point(size=0.5)+
+  stat_smooth(method="loess",size=2)
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point(size=0.5)+
+  stat_smooth(method="loess",geom="line",color="blue",size=2)
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point(size=0.5)+
+  stat_smooth(method="loess",geom="point",color="blue",size=2)
+```
+
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price,color=cut)+geom_point()+
+  scale_color_manual(values=c("Fair"="black","Good"="yellow",
+                              "Very Good"="blue","Premium"="red","Ideal"="green"))
+```
+
+```{r}
+p1 <- ggplot(diamonds2)+aes(x=cut)+geom_bar(aes(fill=cut))
+p1
+p1 + scale_fill_brewer(palette="Reds")
+```
+```{r}
+p2 <- ggplot(diamonds2)+aes(x=carat,y=price)+
+geom_point(aes(color=depth))
+p2
+p2 + scale_color_gradient(low="red",high="yellow")
+```
+
+ 
+```{r}
+p2+scale_x_continuous(breaks=seq(0.5,3,by=0.5))+
+  scale_y_continuous(name="prix")+
+  scale_color_gradient("Profondeur")
+```
+
+## 3.2.3 Group et facets
+
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_smooth()
+ggplot(diamonds2)+aes(x=carat,y=price,group=cut)+geom_smooth()
+ggplot(diamonds2)+aes(x=carat,y=price,group=cut,color=cut)+
+  geom_smooth()
+```
+
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point()+
+  geom_smooth(method="lm")+facet_grid(color~cut)
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point()+
+  geom_smooth(method="lm")+facet_wrap(color~cut)
+ggplot(diamonds2)+aes(x=carat,y=price,color=cut)+geom_smooth()+
+facet_wrap(~cut,nrow=2)
+
+```
+
+```{r,message=FALSE,warning=FALSE}
+gr1 <- ggplot(diamonds2)+aes(x=cut)+geom_bar() # 1er graphe
+gr2 <- ggplot(diamonds2)+aes(x=price)+geom_histogram() # 2e graphe
+library(gridExtra)
+grid.arrange(gr1, gr2, ncol=2, nrow=1) # organisation des graphes
+```
+
+## 3.2.4 Compléments
+
+```{r}
+ggplot(diamonds2)+aes(x=carat,y=price)+geom_point()
+ggplot(diamonds2,aes(x=carat,y=price))+geom_point()
+ggplot(diamonds2)+geom_point(aes(x=carat,y=price))
+```
+```{r}
+X <- seq(-2*pi,2*pi,by=0.001)
+Y1 <- cos(X)
+Y2 <- sin(X)
+donnees1 <- data.frame(X,Y1)
+donnees2 <- data.frame(X,Y2)
+```
+```{r}
+ggplot(donnees1)+geom_line(aes(x=X,y=Y1))+
+  geom_line(data=donnees2,aes(x=X,y=Y2),color="red")
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR) #Pour obtenir le jeu de donnees
+data("decathlon")
+ggplot(decathlon)+aes(x=`100m`,y=`1500m`)+geom_point()
+```
+
+```{r}
+p <- ggplot(diamonds2)+aes(x=carat,y=price,color=cut)+geom_point()
+p + theme_bw()
+p + theme_classic()
+p + theme_grey()
+p + theme_minimal()
+```
+```{r}
+qplot(data=diamonds2,x=carat,y=price,geom=c("point","smooth"), facets=color~cut)
+```
+```{r,eval=FALSE}
+monplot <- qplot(data=diamonds2,x=carat,y=price,geom=c("point","smooth"), facets=color~cut)
+ggsave("mon_graphique.pdf", plot = monplot, width = 11, height = 8)
+```
+
+# 3.3 Les graphiques interactifs
+
+```{r,message=FALSE,warning=FALSE,eval=FALSE}
+library(rAmCharts)
+amBoxplot(maxO3 ~ vent, data = ozone, export = TRUE)
+```
+
+```{reval=FALSE}
+data(data_stock_2)
+amTimeSeries(data_stock_2, "date", c("ts1", "ts2"))
+```
+
+```{r,message=FALSE,warning=FALSE}
+ggplot(ozone) + aes(x=T12,y=maxO3,color=vent) + geom_point()
+library(plotly)
+ggplotly()
+```

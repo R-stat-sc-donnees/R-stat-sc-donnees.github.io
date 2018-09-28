@@ -1,0 +1,115 @@
+---
+title: "Régression sous contraintes"
+author: "Husson et al."
+date: "6 septembre 2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r,message=FALSE,warning=FALSE}
+library(kernlab)
+data(spam)
+```
+
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+valid <- spam[-perm,]
+```
+
+# 2. Construire les modèles lasso et ridge
+
+```{r,message=FALSE,warning=FALSE}
+library(glmnet)
+lasso <- glmnet(as.matrix(app[,1:57]),app[,58],family="binomial")
+```
+
+```{r}
+ridge <- glmnet(as.matrix(app[,1:57]),app[,58],family="binomial",alpha=0)
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(lasso)
+plot(ridge)
+```
+
+
+# 3. Sélectionner le paramètre lambda
+
+```{r}
+set.seed(1234)
+Llasso <- cv.glmnet(as.matrix(app[,1:57]),app[,58],family="binomial")
+Llasso$lambda.min
+Llasso$lambda.1se
+```
+
+```{r}
+plot(Llasso)
+```
+
+
+```{r}
+set.seed(1234)
+Lridge <- cv.glmnet(as.matrix(app[,1:57]),app[,58],family="binomial",alpha=0)
+set.seed(1234)
+Lridge1 <- cv.glmnet(as.matrix(app[,1:57]),app[,58],family="binomial",alpha=0,lambda=exp(seq(-10,-2,length=100)))
+par(mfrow=c(1,2))
+plot(Lridge)
+plot(Lridge1)
+```
+
+# 4. Faire de la prévision
+
+```{r}
+prev.class.lasso <- predict(Llasso,newx=as.matrix(valid[,1:57]),type="class")
+prev.class.ridge <- predict(Lridge1,newx=as.matrix(valid[,1:57]),type="class")
+prev.class <- data.frame(Lasso=as.character(prev.class.lasso),Ridge=as.character(prev.class.ridge),obs=valid$type)
+head(prev.class)
+```
+
+
+
+```{r}
+prev.lasso <- predict(Llasso,newx=as.matrix(valid[,1:57]),type="response")
+prev.ridge <- predict(Lridge1,newx=as.matrix(valid[,1:57]),type="response")
+prev.prob <- data.frame(Lasso=as.numeric(prev.lasso),Ridge=as.numeric(prev.ridge),obs=valid$type)
+head(prev.prob)
+```
+
+# 5. Estimer les performances d’une régression sous contraintes
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+prev.class %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+
+
+```{r,message=FALSE,warning=FALSE}
+library(plotROC)
+df.roc <- prev.prob %>% gather(key=Methode,value=score,Lasso,Ridge)
+ggplot(df.roc)+aes(d=obs,m=score,color=Methode)+geom_roc()+theme_classic()
+```
+
+
+```{r,message=FALSE,warning=FALSE}
+library(pROC)
+df.roc %>% group_by(Methode) %>% summarize(AUC=pROC::auc(obs,score))
+ggplot(df.roc)+aes(d=obs,m=score,color=Methode)+geom_roc()+theme_classic()
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(pROC)
+df.roc %>% group_by(Methode) %>% summarize(AUC=pROC::auc(obs,score))
+```
+

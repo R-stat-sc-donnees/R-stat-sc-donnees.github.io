@@ -1,0 +1,115 @@
+---
+title: "Forêts aléatoires"
+author: "Husson et al."
+date: "12 septembre 2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+# 1. Importer les données
+
+```{r,message=FALSE,warning=FALSE}
+library(kernlab)
+data(spam)
+summary(spam[,56:58])
+```
+
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+valid <- spam[-perm,]
+```
+
+# 2. Construire et analyser une forêt aléatoire
+
+```{r,message=FALSE,warning=FALSE}
+library(randomForest)
+set.seed(1234)
+foret <- randomForest(type~.,data=app)
+foret
+```
+
+# 3. Sélectionner les paramètres de la forêt
+
+```{r}
+plot(foret)
+```
+
+```{r}
+tail(foret$err.rate)
+```
+
+```{r,message=FALSE,warning=FALSE}
+grille.mtry <- data.frame(mtry=seq(1,57,by=3))
+library(caret)
+ctrl <- trainControl(method="oob")
+library(doParallel)    # pour paralléliser
+cl <- makePSOCKcluster(4)
+registerDoParallel(cl)     
+set.seed(12345)
+sel.mtry <- train(type~.,data=app,method="rf",trControl=ctrl,tuneGrid=grille.mtry)
+sel.mtry
+stopCluster(cl)        ## fermeture des clusters
+```
+
+# 4. Faire de la prévision
+
+```{r}
+set.seed(5432)
+foret1 <- randomForest(type~.,data=app,mtry=10)
+
+prev.valid <- predict(foret1,newdata=valid)
+prev.valid[1:10]
+
+prob.valid <- predict(foret1,newdata=valid,type="prob")
+prob.valid[1:10,]
+```
+
+# 5. Estimer les performances de la forêt
+
+```{r}
+set.seed(5432)
+foret2 <- randomForest(type~.,data=app,xtest=valid[,-58],ytest=valid[,58],keep.forest=TRUE)
+set.seed(891)
+foret3 <- randomForest(type~.,data=app,mtry=10,xtest=valid[,-58],ytest=valid[,58],keep.forest=TRUE)
+foret2
+foret3
+```
+
+```{r,message=FALSE,warning=FALSE,fig.width=5,fig.height=5}
+library(pROC)
+prev2 <- predict(foret2,newdata=valid,type="prob")[,2]
+roc2 <- roc(valid$type,prev2)
+prev3 <- predict(foret3,newdata=valid,type="prob")[,2]
+roc3 <- roc(valid$type,prev3)
+plot(roc2,print.auc=TRUE,print.auc.cex=0.5,print.auc.x=0.4,print.auc.y=0.3)
+plot(roc3,add=TRUE,col="red",print.auc=TRUE,print.auc.cex=0.5,print.auc.col="red",print.auc.x=0.4,print.auc.y=0.2)
+
+
+library(rpart)
+set.seed(12345)
+arbre <- rpart(type~.,data=app,cp=0.0001)
+library(tidyverse)
+cp_opt <- arbre$cptable %>% as.data.frame() %>% filter(xerror==min(xerror)) %>% select(CP) %>% max() %>% as.numeric() 
+arbre_sel <- prune(arbre,cp=cp_opt)
+prev.arbre <- predict(arbre_sel,newdata=valid,type="prob")[,2]
+roc.arbre <- roc(valid$type,prev.arbre)
+plot(roc.arbre,add=TRUE,col="blue",print.auc=TRUE,print.auc.cex=0.5,print.auc.col="blue",print.auc.x=0.4,print.auc.y=0.1)
+```
+
+# 6. Interpréter la forêt aléatoire
+
+```{r,fig.width=10,fig.height=5}
+var.imp <- foret2$importance
+ord <- order(var.imp,decreasing=TRUE)
+barplot(sort(var.imp,decreasing = TRUE)[1:10],names.arg=rownames(var.imp)[ord][1:10],cex.names=0.4)
+```
+

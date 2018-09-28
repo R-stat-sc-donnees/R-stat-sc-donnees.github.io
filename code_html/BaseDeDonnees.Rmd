@@ -1,0 +1,192 @@
+---
+title: "Base de données"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 5.3.1 SQL : Structured Query Language
+
+```{r,eval=FALSE}
+library(DBI)
+con <- dbConnect(RPostgres::Postgres(), dbname = 'DATABASE_NAME',
+                 host = 'HOST', port = 5432, user = 'USERNAME', password = 'PASSWORD')
+```
+
+
+```{r,message=FALSE,warning=FALSE}
+library(RSQLite)
+con <- dbConnect(RSQLite::SQLite(), dbname = ":memory:")
+dbListTables(con)
+```
+
+```{r,message=FALSE,warning=FALSE}
+df <- data.frame(x = runif(25),
+                 label = sample(c("A", "B"), size = 25, replace = TRUE))
+dbWriteTable(con, name = "Exemple", value = df)
+dbListTables(con)
+dbListFields(con, "Exemple")
+```
+
+```{r,message=FALSE,warning=FALSE}
+res <- dbSendQuery(con, "SELECT * FROM Exemple WHERE label = 'A'")
+res
+dbClearResult(res)
+```
+
+```{r,message=FALSE,warning=FALSE}
+res <- dbSendQuery(con, "SELECT * FROM Exemple WHERE label = 'A'")
+while(!dbHasCompleted(res)){
+  chunk <- dbFetch(res, n = 5)
+  print(res)
+  print(chunk[,2])
+}
+dbClearResult(res)
+```
+
+```{r,message=FALSE,warning=FALSE}
+con <- dbConnect(RSQLite::SQLite(), dbname = "LEveloSTAR.sqlite3")
+dbListTables(con)
+```
+
+```{r,message=FALSE,warning=FALSE}
+dbListFields(con, "Etat")
+```
+
+```{r,message=FALSE,warning=FALSE}
+dbListFields(con, "Topologie")
+
+res <- dbGetQuery(con,
+  "SELECT left.id AS id,
+  right.nom AS nom,
+ (COALESCE(right.adresse_numero, '') ||
+ ' ' ||
+ COALESCE(right.adresse_voie, '')
+ ) AS adresse,
+ left.distance AS distance
+ FROM (SELECT id,
+ POWER((latitude - 48.103712), 2.0) +
+ POWER((longitude + 1.672342), 2.0) AS distance
+ FROM Etat
+ WHERE ((etat = 'En fonctionnement') AND (velos_disponibles > 0))
+ ) AS left
+ LEFT JOIN Topologie AS right
+ ON (left.id = right.id)
+ ORDER BY distance
+ LIMIT 3")
+
+dbDisconnect(con)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(dplyr)
+library(dbplyr)
+con <- DBI::dbConnect(RSQLite::SQLite(), dbname = "LEveloSTAR.sqlite3")
+etat_db <- tbl(con, "Etat")
+topologie_db <- tbl(con, "Topologie")
+class(etat_db)
+```
+
+```{r}
+req <- etat_db %>% arrange(latitude) %>% select(nom,latitude) %>% head(2)
+req
+req %>% collect()
+req %>% show_query()
+```
+
+```{r}
+etat_db %>%
+  filter(etat=="En fonctionnement", velos_disponibles>0L) %>%
+  mutate(distance2 = (latitude-48.103712)**2+(longitude+1.672342)**2) %>%
+  arrange(distance2) %>% head(3) %>% select(id, distance2) %>%
+  left_join(topologie_db, by=c("id" = "id")) %>%
+  mutate(adresse = adresse_voie) %>%
+  select(id, nom, adresse, distance2) %>% collect()
+```
+
+# 5.3.2 JSON : JavaScript Object Notation
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(jsonlite)
+```
+```{r}
+df <- tibble(
+  x = c(0, pi),
+  y = cos(x)
+)
+toJSON(df)
+```
+```{r}
+df %>% toJSON() %>% fromJSON()
+fromJSON('[{"x":1},{"y":2}]')
+df1 <- fromJSON('[{"x":[1, 2, 3]},{"x":4}]')
+df1
+ll1 <- fromJSON('[{"x":[1, 2, 3]},{"x":4}]', simplifyVector = FALSE)
+ll1
+df2 <- fromJSON('[{"x":{"xa":1, "xb":2}},{"x":3}]')
+df2
+ll2 <- fromJSON('[{"x":{"xa":1, "xb":2}},{"x":3}]',
+                 simplifyDataFrame = FALSE)
+ll2
+```
+
+```{r}
+url <- paste0(
+"https://data.rennesmetropole.fr/api/records/1.0/search/",
+"?dataset=etat-des-stations-le-velo-star-en-temps-reel",
+"&rows=100",
+"&facet=nom",
+"&facet=etat",
+"&facet=nombreemplacementsactuels",
+"&facet=nombreemplacementsdisponibles",
+"&facet=nombrevelosdisponibles"
+)
+ll <- jsonlite::fromJSON(url)
+df <- ll$records$fields
+```
+```{r}
+class(df)
+glimpse(df)
+```
+
+```{r}
+url <- "http://jeroen.github.io/data/diamonds.json"
+diamonds <- jsonlite::stream_in(url(url))
+url <- "http://jeroen.github.io/data/nycflights13.json.gz"
+flights <- jsonlite::stream_in(gzcon(url(url)))
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(mongolite)
+username <- "readwrite"
+password <- "test"
+host <- "mongo.opencpu.org"
+port <- "43942"
+path <- "/jeroen_test"
+url <- paste0(
+"mongodb://",
+username, ":", password, "@",
+host, ":", port,
+path)
+m <- mongo("mtcars", url = url)
+```
+
+```{r}
+if(m$count() > 0) m$drop()
+m$insert(mtcars)
+m$export(file("dump.json"))
+df <- stream_in(file("dump.json"))
+```

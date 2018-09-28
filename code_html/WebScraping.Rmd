@@ -1,0 +1,157 @@
+---
+title: "Web scraping"
+author: "Husson et al."
+date: "09/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# 5.4.2 Approche naïve
+
+```{r,message=FALSE,warning=FALSE}
+url_wikipedia <- "https://fr.wikipedia.org/"
+url_filmographie <- "wiki/Filmographie_de_Louis_de_Funès"
+url <- paste0(url_wikipedia, url_filmographie)
+data_html <- readLines(url)
+```
+
+```{r}
+data_html[1:5]
+```
+
+```{r}
+begin <- grep("<body", data_html)
+end <- grep("</body>", data_html)
+data_html <- data_html[(begin +1):(end-1)]
+```
+
+```{r}
+li<- grep("<li>", data_html)
+data_html[li[1]]
+```
+
+# 5.4.3 Le package rvest
+
+```{r,message=FALSE,warning=FALSE}
+library(rvest)
+data_html <- read_html(url)
+data_html %>% html_nodes("h4") %>% head(1)
+data_html %>% html_nodes("h4") %>% head(1) %>% html_text()
+data_html %>%
+html_nodes('#mw-content-text > div >
+            ul:nth-of-type(1) > li > i > a') %>%
+  html_attrs()
+```
+```{r}
+data_html %>%
+html_nodes('#mw-content-text > div >
+            ul:nth-of-type(2) > li > i > a') %>%
+  html_attrs()
+```
+
+```{r}
+data_html %>%
+  html_nodes(xpath ='//*[@id="mw-content-text"]
+    /div/ul[
+    preceding::h4[span/@id="Années_1950"]
+    and
+    following::h4[span/@id="Années_1960"]]
+    /li/i/a'
+    ) %>%
+  head(5) %>%
+  html_text()
+```
+
+```{r}
+url_film <- "wiki/Quai_de_Grenelle"
+url <- paste0(url_wikipedia,url_film)
+data_html <- read_html(url)
+```
+
+```{r}
+data_html %>%
+html_nodes(xpath = '(
+  //*[@id="mw-content-text"]
+  //ul[preceding::h2[span/@id="Distribution"]]
+  )[1]/li/a[1]'
+  ) %>%
+  head(6) %>%
+  html_text()
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(tidyverse)
+library(dplyr)
+url_wikipedia <- "https://fr.wikipedia.org"
+url_de_funes <- "/wiki/Filmographie_de_Louis_de_Funès"
+url <- paste0(url_wikipedia, url_de_funes)
+data_html <- read_html(url)
+films <- data_html %>%
+  html_nodes('#mw-content-text > div >
+              ul:nth-of-type(2) > li > i > a') %>%
+  html_attrs()
+liste_acteurs <- tibble()
+for(i in seq_along(films)){
+  titre <- films[[i]][2]
+  url_film <- films[[i]][1]
+  url <- paste0(url_wikipedia, url_film)
+  data_html <- read_html(url)
+  acteurs <- data_html %>%
+    html_nodes(xpath = '
+  (
+  //*[@id="mw-content-text"]
+  //ul[preceding::h2[span/@id="Distribution"]]
+  )[1]/li/a[1]'
+  ) %>%
+    html_text()
+  liste_acteurs <- rbind(liste_acteurs,tibble(nom = acteurs,titre = titre))
+}
+
+```
+
+```{r}
+liste_acteurs %>%
+  group_by(nom) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  head(4)
+```
+
+# 5.4.4 Pour aller plus loin
+
+```{r}
+url_wikipedia <- "https://fr.wikipedia.org"
+url_de_funes <- "/wiki/Louis_de_Funès"
+url <- paste0(url_wikipedia, url_de_funes)
+read_html(url) %>%
+html_nodes('#mw-content-text> div > div.infobox_v3.large > table') %>%
+            html_table()
+```
+
+```{r}
+session <- html_session(url_wikipedia)
+session
+session %>% jump_to("Emanuel_Macron")
+session %>% jump_to("Emmanuel_Macron")
+session %>% jump_to("Emmanuel_Macron") %>% back()
+```
+
+```{r}
+session <- html_session("https://fr.wikipedia.org/wiki/Emmanuel_Macron")
+session %>% follow_link(5)
+session %>% follow_link("Mouvement des citoyens")
+session %>% follow_link(css = "#mw-content-text >
+                        div > p:nth-child(9) > a:nth-child(1)")
+```
+

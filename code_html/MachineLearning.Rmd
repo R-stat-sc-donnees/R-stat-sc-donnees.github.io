@@ -1,0 +1,563 @@
+---
+title: "Machine_learning"
+author: "Husson et al."
+date: "6 septembre 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+```{r}
+library(kernlab)
+data(spam)
+```
+
+```{r}
+summary(spam[,54:58])
+```
+
+## calibration d'un algorithme avec caret
+### importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+
+### L'agorithme des plus proches voisins
+séparations en 2 parties
+```{r}
+set.seed(1234)
+spam1 <- spam[sample(nrow(spam)),]
+spam.app <- spam1[1:3000,]
+spam.test <- spam1[-(1:3000),]
+```
+
+3 ppv
+```{r}
+library(class)
+reg3ppv <- knn(spam.app[,-58],spam.test[,-58],cl=spam.app$type,k=3)
+```
+
+erreur de classification
+```{r}
+mean(reg3ppv!=spam.test$type)
+```
+### Calibration des paramètres
+Grille sur K
+```{r}
+grille.K <- data.frame(k=seq(1,100,by=1))
+```
+Mise en place apprentissage/validation (ou validation hold out)
+```{r,message=FALSE,warning=FALSE}
+library(caret)
+ctrl1 <- trainControl(method="LGOCV",number=1,index=list(1:3000))
+```
+
+sélection de K
+```{r}
+sel.k1 <- train(type~.,data=spam1,method="knn",trControl=ctrl1,tuneGrid=grille.K)
+sel.k1
+```
+Meilleur K
+```{r}
+sel.k1$bestTune
+```
+
+```{r,echo=FALSE}
+plot(sel.k1)
+```
+### Compléments
+Validation croisée 10 blocs
+```{r}
+ctrl2 <- trainControl(method="cv",number=10)
+set.seed(123)
+sel.k2 <- train(type~.,data=spam1,method="knn",trControl=ctrl2,tuneGrid=grille.K)
+sel.k2
+```
+calculs en parallèle
+```{r,message=FALSE,warning=FALSE}
+library(doMC)
+registerDoMC(cores=1)
+set.seed(123)
+system.time(sel.k3 <- train(type~.,data=spam1,method="knn",trControl=ctrl2,tuneGrid=grille.K))
+registerDoMC(cores=4)
+set.seed(123)
+system.time(sel.k4 <- train(type~.,data=spam1,method="knn",trControl=ctrl2,tuneGrid=grille.K))
+```
+AUC Apprentissage validation
+```{r}
+ctrl3 <- trainControl(method="LGOCV",number=1,index=list(1:3000),classProbs=TRUE,summary=twoClassSummary)
+```
+Choix K avec AUC
+```{r}
+sel.k5 <- train(type~.,data=spam1,method="knn",trControl=ctrl3,metric="ROC",tuneGrid=grille.K)
+sel.k5       
+```
+Performance du K choisi
+```{r}
+getTrainPerf(sel.k5)
+```
+
+### Pour aller plus loin
+```{r,eval=FALSE}
+ctrl3 <- trainControl(method="repeatedcv",number=10,repeats=20)
+train(type~.,data=spam1,method="knn",trControl=ctrl3,tuneGrid=grille.K)
+```
+
+## Forêt aléatoire
+### Importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+
+### Construire et analyser la forêt aléatoire
+```{r,message=FALSE,warning=FALSE}
+library(randomForest)
+set.seed(1234)
+foret <- randomForest(type~.,data=spam)
+foret
+```
+### Sélectionner les paramètres de la forêt
+contrôle graphique ntree
+```{r}
+plot(foret)
+```
+valeurs
+```{r}
+tail(foret$err.rate)
+```
+sélection mtry: grille caret
+```{r}
+grille.mtry <- data.frame(mtry=seq(1,57,by=3))
+```
+sélection mtry avec caret:
+```{r,warnings=FALSE,message=FALSE}
+library(caret)
+ctrl <- trainControl(method="oob")
+library(doMC)
+registerDoMC(cores=4) # pour paralléliser
+set.seed(12345)
+sel.mtry <- train(type~.,data=spam,method="rf",trControl=ctrl,tuneGrid=grille.mtry)
+sel.mtry
+```
+### Prédire Y pour de nouveaux individus
+séparation Apprentissage/Test
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+test <- spam[-perm,]
+```
+Apprentissage
+```{r}
+set.seed(5432)
+foret1 <- randomForest(type~.,data=app)
+```
+Prédiction sur Test (type facteur/class)
+```{r}
+prev.test <- predict(foret1,newdata=test)
+prev.test[1:10]
+```
+Prédiction sur Test (type proba)
+```{r}
+prob.test <- predict(foret1,newdata=test,type="prob")
+prob.test[1:10,]
+```
+### Estimer les performances de la forêt
+Taux d'erreur OOB
+```{r}
+set.seed(5432)
+foret2 <- randomForest(type~.,data=app,xtest=test[,-58],ytest=test[,58],keep.forest=TRUE)
+set.seed(891)
+foret3 <- randomForest(type~.,data=app,mtry=10,xtest=test[,-58],ytest=test[,58],keep.forest=TRUE)
+foret2
+```
+AUC
+```{r,message=FALSE,warning=FALSE}
+library(pROC)
+prev2 <- predict(foret2,newdata=test,type="prob")[,2]
+roc2 <- roc(test$type,prev2)
+prev3 <- predict(foret3,newdata=test,type="prob")[,2]
+roc3 <- roc(test$type,prev3)
+plot(roc2,print.auc=TRUE,print.auc.x=0.4,print.auc.y=0.3)
+plot(roc3,add=TRUE,col="red",print.auc=TRUE,print.auc.col="red",print.auc.x=0.4,print.auc.y=0.2)
+```
+AUC pour rpart
+```{r}
+library(rpart)
+arbre <- rpart(type~.,data=app,cp=0.0001)
+prev.arbre <- predict(arbre,newdata=test,type="prob")[,2]
+roc.arbre <- roc(test$type,prev.arbre)
+plot(roc2,print.auc=TRUE,print.auc.x=0.4,print.auc.y=0.3)
+plot(roc3,add=TRUE,col="red",print.auc=TRUE,print.auc.col="red",print.auc.x=0.4,print.auc.y=0.2)
+plot(roc.arbre,add=TRUE,col="blue",print.auc=TRUE,print.auc.col="blue",print.auc.x=0.4,print.auc.y=0.1)
+```
+### Interpréter la forêt aléatoire
+```{r}
+var.imp <- foret2$importance
+ord <- order(var.imp,decreasing=TRUE)
+barplot(sort(var.imp,decreasing = TRUE)[1:10],names.arg=rownames(var.imp)[ord][1:10],cex.names=0.6)
+```
+
+## Régression sous contraintes
+### Importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+### Construire le modèle
+Lasso
+```{r,warning=FALSE,message=FALSE}
+library(glmnet)
+lasso1 <- glmnet(as.matrix(spam[,1:57]),spam[,58],family="binomial")
+```
+Coef en fonction de la norme (lasso)
+```{r}
+plot(lasso1)
+```
+Ridge
+```{r}
+ridge1 <- glmnet(as.matrix(spam[,1:57]),spam[,58],family="binomial",alpha=0)
+plot(ridge1)
+```
+### Sélectionner le paramètre λ
+validation croisée en 10 blocs (deviance)
+```{r}
+Llasso <- cv.glmnet(as.matrix(spam[,1:57]),spam[,58],family="binomial")
+```
+représentation graphique
+```{r}
+par(mfrow=c(1,2))
+plot(Llasso)
+plot(Llasso$lambda, Llasso$cvm, xlab="Valeurs de Lambda",ylab="validation croisée")
+```
+Ridge
+```{r}
+Lridge <- cv.glmnet(as.matrix(spam[,1:57]),spam[,58],family="binomial",alpha=0)
+```
+### Prédire Y pour de nouveaux individus
+séparation Apprentissage/Test
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+test <- spam[-perm,]
+```
+Choix de λ pour Lasso et prévisions (type linéaire)
+```{r}
+lasso1 <- cv.glmnet(as.matrix(app[,1:57]),app[,58],family="binomial")
+prev.lasso <- predict(lasso1,newx=as.matrix(test[,1:57]))
+```
+prévisions Lasso (type probabilité)
+```{r}
+prev.lasso <- predict(lasso1,newx=as.matrix(test[,1:57]),type="response")
+prev.lasso[1:4,]
+```
+Choix de λ pour Ridge et prévisions (type proba)
+```{r}
+ridge1 <- cv.glmnet(as.matrix(app[,1:57]),app[,58],family="binomial",alpha=0)
+prev.ridge <- predict(ridge1,newx=as.matrix(test[,1:57]),type="response")
+prev.ridge[1:4,]
+```
+### Estimer les performances d’une régression sous contraintes
+```{r}
+elast1 <- cv.glmnet(as.matrix(app[,1:57]),app[,58],family="binomial",alpha=0.5)
+prev.elast <- predict(elast1,newx=as.matrix(test[,1:57]),type="response")
+```
+ROC et AUC
+```{r}
+library(pROC)
+roclasso <- roc(test$type,prev.lasso[,1])
+rocridge <- roc(test$type,prev.ridge[,1])
+rocelast <- roc(test$type,prev.elast[,1])
+plot(roclasso,print.auc=TRUE,print.auc.x=0.4,print.auc.y=0.3)
+plot(rocridge,add=TRUE,col="red",print.auc=TRUE,print.auc.col="red",print.auc.x=0.4,print.auc.y=0.2)
+plot(rocelast,add=TRUE,col="blue",print.auc=TRUE,print.auc.col="blue",print.auc.x=0.4,print.auc.y=0.1)
+```
+
+## Gradient boosting
+### Importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+Mise en forme pour gbm
+```{r}
+spam1 <- spam
+spam1$type <- as.numeric(spam1$type)-1
+```
+
+### Construire et analyser l’algorithme de gradient boosting
+```{r}
+library(gbm)
+set.seed(1234)
+spam1 <- spam1[sample(nrow(spam1)),]
+set.seed(567)
+mod.ada <- gbm(type~.,data=spam1,distribution="adaboost",train.fraction=0.66,shrinkage=0.05,n.trees=5000)
+```
+### Sélectionner le nombre d’itérations
+```{r}
+gbm.perf(mod.ada)
+```
+### Prédire Y pour de nouveaux individus
+séparation Apprentissage/Test
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+spam.app <- spam1[perm,]
+spam.test <- spam1[-perm,]
+```
+Sélection nombre d’itérations par validation croisée 5 blocs
+
+```{r,warning=FALSE,message=FALSE}
+set.seed(123)
+mod.ada <- gbm(type~.,data=spam.app,distribution="adaboost",cv.folds=5,shrinkage=0.01,n.trees=5000)
+Mopt <- gbm.perf(mod.ada)
+```
+Prédiction 
+```{r}
+prev.test <- predict(mod.ada,newdata=spam.test,type="response",n.trees=Mopt)
+head(round(prev.test[1:5],3))
+```
+### Estimer les performances de l’algorithme
+Logit boost
+```{r,message=FALSE,warning=FALSE}
+set.seed(891)
+mod.logit <- gbm(type~.,data=spam.app,distribution="bernoulli",cv.folds=5,shrinkage=0.05,n.trees=5000)
+Mopt.logit <- gbm.perf(mod.logit)
+```
+Prévisions adaboost et logitboost (type probabilités)
+```{r}
+prev.prob <- data.frame(ada=predict(mod.ada,newdata=spam.test,type="response",n.trees=Mopt),logit=predict(mod.logit,newdata=spam.test,type="response",n.trees=Mopt.logit),obs=spam.test$type)
+head(round(prev.prob,3))
+```
+Prévisions adaboost et logitboost (type 0/1)
+```{r}
+prev.class <- round(prev.prob)
+head(prev.class)
+```
+Taux d'erreurs
+```{r,warning=FALSE,message=FALSE}
+library(tidyverse)
+prev.class %>% summarise_all(funs(err=mean(obs!=.)))%>% select(-obs_err) %>% round(3)
+```
+Courbes ROC
+```{r,message=FALSE,warning=FALSE}
+library(plotROC)
+df.roc <- prev.prob %>% gather(key=methode,value=score,ada,logit)
+ggplot(df.roc) + aes(d=obs,m=score,color=methode) + geom_roc() + theme_classic()
+```
+AUC
+```{r}
+library(pROC)
+df.roc %>% group_by(methode) %>% summarize(AUC=pROC::auc(obs,score))
+```
+### Interpréter un algorithme de gradient boosting
+```{r}
+summary(mod.logit)[1:10,]
+```
+
+## SVM
+### Importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+### Construire et analyser l’algorithme de SVM
+```{r}
+mod.svm <- ksvm(type~., data=spam, kernel="vanilladot", C=1)
+mod.svm
+```
+### Sélectionner les paramètres d’un SVM
+Valeurs des paramètres
+```{r}
+C <- c(0.1,1,10,100)
+degree <- c(1,2,3)
+scale <- 1
+sigma <- c(0.0001,0.001,0.01,0.1,1)
+```
+séparation Apprentissage/Test
+```{r}
+set.seed(5678)
+perm <- sample(4601,3000)
+app <- spam[perm,]
+test <- spam[-perm,]
+```
+taux de bon classement (validation croisée 3 blocs, noyau polynomial)
+```{r}
+library(caret)
+gr.poly <- expand.grid(C=C,degree=degree,scale=scale)
+ctrl <- trainControl(method="cv",number=3)
+set.seed(123)
+sel.poly <- train(type~.,data=app,method="svmPoly",trControl=ctrl,tuneGrid=gr.poly)
+sel.poly
+```
+taux de bon classement (validation croisée 3 blocs, noyau radial)
+```{r}
+gr.radial <- expand.grid(C=C,sigma=sigma)
+set.seed(345)
+sel.radial <- train(type~.,data=app,method="svmRadial",trControl=ctrl,tuneGrid=gr.radial)
+sel.radial
+```
+ajuster les SVM avec les paramètres optimaux
+```{r}
+mod.poly <- ksvm(type~.,data=app,kernel="polydot",kpar=list(degree=1,scale=1,offset=1),C=1,prob.model = TRUE)
+mod.radial <- ksvm(type~.,data=app,kernel="rbfdot",kpar=list(sigma=0.01),C=10,prob.model = TRUE)
+```
+### Prédire Y pour de nouveaux individus
+prévision type facteur
+```{r}
+prev.class.poly <- predict(mod.poly,newdata=test)
+prev.class.radial <- predict(mod.radial,newdata=test)
+prev.class.poly[1:10]
+prev.class.radial[1:10]
+```
+taux de mal classés
+```{r}
+prev.prob.poly <- predict(mod.poly,newdata=test,type="probabilities")
+prev.prob.radial <- predict(mod.radial,newdata=test, type="probabilities")
+round(head(prev.prob.poly),3)
+```
+
+```{r}
+library(tidyverse)
+prev.class <- data.frame(poly=prev.class.poly,radial=prev.class.radial,obs=test$type)
+prev.class %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+Courbes ROC
+```{r,warning=FALSE,message=FALSE}
+library(plotROC)
+prev.prob <- data.frame(poly=prev.prob.poly[,2],radial=prev.prob.radial[,2],obs=test$type)
+df.roc <- prev.prob %>% gather(key=methode,value=score,poly,radial)
+ggplot(df.roc)+aes(d=obs,m=score,color=methode)+geom_roc()+theme_classic()
+```
+
+```{r}
+library(pROC)
+df.roc %>% group_by(methode) %>% summarize(AUC=pROC::auc(obs,score))
+```
+
+## Réseaux de neurones et deep learning
+```{r}
+library(keras)
+install_keras() # à ne faire qu'une seule fois 
+```
+### Importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+Mise en forme keras (codage variables qualitatives)
+```{r}
+library(keras)
+spamX <- as.matrix(spam[,-58])
+spamY <- to_categorical(as.numeric(spam$type)-1, 2)
+```
+### Construire un réseau et optimiser les paramètres
+#### Réseau à une couche
+Construction du réseau
+```{r}
+use_session_with_seed(42)
+mod.1couche <- keras_model_sequential() %>% layer_dense(units=2, activation ="softmax")
+```
+Estimation des paramètres
+```{r,message=FALSE,warnings=FALSE}
+mod.1couche %>% compile(loss = "categorical_crossentropy", optimizer=optimizer_rmsprop(),metrics=c("accuracy"))
+res1couche <- mod.1couche %>% fit(spamX,spamY,epochs=30,batch_size=64,validation_split=0.2)
+```
+Résultat de l'estimation
+```{r}
+plot(res1couche)
+```
+Prédictions
+```{r}
+predict(mod.1couche, spamX)[1:4,]
+```
+#### Réseau à deux couches
+Construction du réseau
+```{r}
+use_session_with_seed(23)
+mod.2couche <- keras_model_sequential() %>% layer_dense(units=30, activation ="relu") %>% layer_dense(units=2, activation ="softmax")
+```
+Estimation des paramètres
+```{r}
+mod.2couche %>% compile(loss = "categorical_crossentropy",optimizer=optimizer_rmsprop(),metrics=c("accuracy"))
+res2couche <- mod.2couche %>% fit(spamX,spamY,epochs=30,batch_size=64,validation_split=0.2)
+```
+Prédiction
+```{r}
+predict(mod.2couche, spamX)[1:4,]
+```
+### Estimer les performances et optimiser les métaparamètres
+Optimisation d'un réseau à deux couches
+```{r}
+use_session_with_seed(56)
+library(caret)
+caret_mlp <- train(type ~ . , data = spam, method = "mlpKerasDecay", tuneGrid = expand.grid(size = c(30, 45), lambda = 0, batch_size = 128, lr = 0.001, rho = 0.9, decay = 0, activation = c("relu", "tanh")),epoch = 30)
+```
+Meilleur choix de paramètres
+```{r}
+caret_mlp
+```
+Prédiction
+```{r}
+predict(caret_mlp, newdata = spam[1:3,])
+```
+
+## Comparaison de méthodes
+### Importer les données
+```{r}
+library(kernlab)
+data(spam)
+```
+### Découper les données
+```{r}
+set.seed(1234)
+perm <- sample(4601,round(4601*.8))
+spam.app <- spam[perm,]
+spam.valid <- spam[-perm,]
+```
+### Optimiser le(s) paramètre(s) de l’algorithme
+Lasso: optimisation paramètre
+```{r}
+library(glmnet)
+set.seed(123)
+optlasso <- cv.glmnet(as.matrix(spam.app[,-58]),spam.app[,58],family="binomial", nfold=10, type.measure="class")
+optlasso$lambda.min
+```
+Lasso: prévisions
+```{r}
+prevlasso <- predict(optlasso,newx=as.matrix(spam.valid[,-58]), type="class",s=c("lambda.min"))
+```
+Foret
+```{r,message=FALSE,warning=FALSE}
+library(caret)
+ctrl <- trainControl(method="cv",number=10,classProbs=TRUE)
+library(doMC)
+registerDoMC(cores = 4)
+set.seed(123)
+sel.mtry <- train(type~.,data=spam.app,method="rf",trControl=ctrl,tuneGrid=data.frame(mtry=seq(1,51,by=10)), type.measure="class")
+sel.mtry$bestTune
+```
+Prévisions
+```{r}
+prevforet <- predict(sel.mtry, spam.valid)
+```
+Erreurs de classement
+```{r}
+prev.methode <- data.frame(lasso=as.vector(prevlasso),foret=prevforet,obs=spam.valid$type)
+library(tidyverse)
+prev.methode %>% summarise_all(funs(err=mean(obs!=.))) %>% select(-obs_err) %>% round(3)
+```
+### Proposer un modèle final
+```{r}
+ctrl <- trainControl(method="cv",number=10,classProbs=TRUE)
+set.seed(123)
+model_final <- train(type~.,data=spam,method="rf",trControl=ctrl, tuneGrid=data.frame(mtry=seq(1,51,by=10)), type.measure="class")
+```
+

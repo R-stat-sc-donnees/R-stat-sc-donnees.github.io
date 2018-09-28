@@ -1,0 +1,76 @@
+---
+title: "Analyse de variance"
+author: "Husson et al."
+date: "05/09/2018"
+output:
+  html_notebook:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    toc_float: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Importer les données
+
+```{r ozone}
+ozone <- read.table("https://r-stat-sc-donnees.github.io/ozone.txt",header=T)
+summary(ozone[,c("maxO3","vent","pluie")])
+```
+
+# 2. Représenter les données
+
+```{r}
+boxplot(maxO3~vent*pluie, data = ozone,
+        col=c(rep("Lightblue",4),rep("orange",4)))
+```
+
+```{r,fig.width=12,fig.height=5}
+par(mfrow=c(1,2))
+with(ozone,interaction.plot(vent,pluie,maxO3,col=1:nlevels(pluie)))
+with(ozone,interaction.plot(pluie,vent,maxO3,col=1:nlevels(vent)))
+```
+
+# 3. Choisir le modèle
+
+```{r}
+table(ozone$pluie, ozone$vent)
+```
+
+```{r,message=FALSE,warning=FALSE}
+library(FactoMineR)
+mod.interaction <- AovSum(maxO3~vent+pluie+vent:pluie,data=ozone)
+mod.interaction$Ftest
+```
+
+```{r}
+modele.sans.int <- AovSum(maxO3~vent+pluie,data=ozone)
+modele.sans.int$Ftest
+```
+
+```{r}
+modele.anova.simple <- AovSum(maxO3~pluie,data=ozone)
+modele.anova.simple$Ftest
+```
+
+# 4. Estimer et interpréter les coefficients
+
+```{r}
+modele.anova.simple$Ttest
+```
+
+# Pour aller plus loin
+
+```{r}
+mod1 <- lm(maxO3~pluie,data=ozone)
+anova(mod1)
+summary(mod1)$coef
+```
+
