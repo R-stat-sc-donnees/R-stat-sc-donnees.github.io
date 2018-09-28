@@ -8,7 +8,7 @@ title: R pour la statistique et la science des données
 
 [Jeux de données](/./liste_don.html)
 
-[Ligne de code utilisées dans les chapitres (y compris les fiches)](/fiche_html/fiche.html)
+[Ligne de code utilisées dans les chapitres (y compris les fiches)](/code_html/code.html)
 
 [Proposition de correction des exercices](/correction_html/correction_exo.html)
 
