@@ -4,6 +4,15 @@ title: R pour la statistique et la science des données
 
 ![Couverture](/pdf/R_stat_sc_donnees.png)
 
+## Matériel disponible
+
+![Jeux de données](liste_don.html)
+
+![Ligne de code utilisées dans les chapitres (y compris les fiches)](fiche_html/fiche.html)
+
+![Proposition de correction des exercices](correction_html/correction_exo.html)
+
+
 # Sommaire
 
 ## Partie I. R et son fonctionnement
