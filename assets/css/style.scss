@@ -354,11 +354,7 @@ a {
 
 .site-footer {
 
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  
+  position : static;
   padding-top: 2rem;
   margin-top: 2rem;
   border-top: solid 1px $hr-border-color;
