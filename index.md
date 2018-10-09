@@ -2,17 +2,13 @@
 title: R pour la statistique et la science des données 
 ---
 
+<div class = "row">
+<div class = "col-md-6">
 
 ![Couverture](/pdf/R_stat_sc_donnees.png)
 
-## Matériel disponible
-
-[Jeux de données](/./liste_don.html)
-
-[Ligne de code utilisées dans les chapitres (y compris les fiches)](/code_html/code.html)
-
-[Proposition de correction des exercices](/correction_html/correction_exo.html)
-
+</div>
+<div class = "col-md-6">
 
 # Sommaire
 
@@ -34,3 +30,19 @@ title: R pour la statistique et la science des données
 * Divers
 
 [Sommaire détaillé](/pdf/TableDesMatieres.pdf)
+
+</div>
+</div>
+
+
+
+
+
+## Matériel disponible
+
+[Jeux de données](/./liste_don.html)
+
+[Ligne de code utilisées dans les chapitres (y compris les fiches)](/code_html/code.html)
+
+[Proposition de correction des exercices](/correction_html/correction_exo.html)
+
