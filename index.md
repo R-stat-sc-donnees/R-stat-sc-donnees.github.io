@@ -2,13 +2,12 @@
 title: R pour la statistique et la science des données 
 ---
 
-<div class = "row">
-<div class = "col-md-6">
-
+<div class="column-left">
 <p><img src="/pdf/R_stat_sc_donnees.png" alt="Couverture" /></p>
-
 </div>
-<div class = "col-md-6">
+
+
+<div class="column-right">
 
 <h1 id="sommaire">Sommaire</h1>
 
@@ -35,7 +34,6 @@ title: R pour la statistique et la science des données
 
 <p><a href="/pdf/TableDesMatieres.pdf">Sommaire détaillé</a></p>
 
-</div>
 </div>
 
 

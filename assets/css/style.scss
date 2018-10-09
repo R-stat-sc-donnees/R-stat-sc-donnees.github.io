@@ -188,6 +188,18 @@ a {
     font-size: 1rem;
   }
 
+.column-left{
+  float: left;
+  width: 50%;
+  text-align: left;
+}
+
+.column-right{
+  float: right;
+  width: 50%;
+  text-align: right;
+}
+
   img {
     max-width: 100%;
   }
