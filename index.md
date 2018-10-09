@@ -2,14 +2,6 @@
 title: R pour la statistique et la science des données 
 ---
 
-<style type="text/css">
-.main-container {
-  max-width: 1800px !important;
-  margin-left: auto;
-  margin-right: auto;
-}
-</style>
-
 
 ![Couverture](/pdf/R_stat_sc_donnees.png)
 
