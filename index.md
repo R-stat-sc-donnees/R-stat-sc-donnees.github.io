@@ -44,3 +44,6 @@ title: R pour la statistique et la science des données
 
 </div>
 
+## Commande
+
+oginosigdsnoig
