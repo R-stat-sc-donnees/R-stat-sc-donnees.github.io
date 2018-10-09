@@ -2,6 +2,8 @@
 title: R pour la statistique et la science des données 
 ---
 
+<div>
+
 <div class="column-left">
 <p><img src="/pdf/R_stat_sc_donnees.png" alt="Couverture" /></p>
 </div>
@@ -34,14 +36,13 @@ title: R pour la statistique et la science des données
 
 <p><a href="/pdf/TableDesMatieres.pdf">Sommaire détaillé</a></p>
 
+<h2 id="matériel-disponible">Matériel disponible</h2>
+
+<p><a href="/liste_don.html">Jeux de données</a></p>
+
+<p><a href="/code_html/code.html">Ligne de code utilisées dans les chapitres (y compris les fiches)</a></p>
+
+<p><a href="/correction_html/correction_exo.html">Proposition de correction des exercices</a></p>
+
 </div>
-
-
-## Matériel disponible
-
-[Jeux de données](/./liste_don.html)
-
-[Ligne de code utilisées dans les chapitres (y compris les fiches)](/code_html/code.html)
-
-[Proposition de correction des exercices](/correction_html/correction_exo.html)
-
+</div>
