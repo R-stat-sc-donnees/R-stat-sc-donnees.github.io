@@ -2,14 +2,12 @@
 title: R pour la statistique et la science des données 
 ---
 
-<p>
-
-<div class="column-left">
+<section class="column-left">
 <p><img src="/pdf/R_stat_sc_donnees.png" alt="Couverture" /></p>
-</div>
+</section>
 
 
-<div class="column-right">
+<section class="column-right">
 
 <h1 id="sommaire">Sommaire</h1>
 
@@ -44,5 +42,5 @@ title: R pour la statistique et la science des données
 
 <p><a href="/correction_html/correction_exo.html">Proposition de correction des exercices</a></p>
 
-</div>
-</p>
+</section>
+
