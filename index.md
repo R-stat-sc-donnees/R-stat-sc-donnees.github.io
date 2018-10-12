@@ -13,7 +13,7 @@ title: R pour la statistique et la science des données
 <h2 id="descriptif">Descriptif</h2>
 <ul>
 <li><a href="/pdf/4eme_COUV.pdf">4e de couverture</a></li>
-<li><a href="/pdf/Avant-Propos.pdf">Avant-propos</a></li>
+<li><a href="/pdf/Avant-propos.pdf">Avant-propos</a></li>
 <li><a href="/pdf/TableDesMatieres.pdf">Sommaire détaillé</a></li>
 </ul>
 
