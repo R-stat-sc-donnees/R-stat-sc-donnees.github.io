@@ -120,15 +120,75 @@ ventil.ordonnee.tab <- function (tab, seuil=0.05) {
 
 ```{r}
 max_inc <- function(seq) {
-dseq <- seq[-1] > seq[-length(seq)]; cur_l <- 1+dseq[1]; max_l <- cur_l
-for (i in 1:(length(dseq)-1)) {
-if (dseq[i] && (dseq[i] == dseq[i+1])) {
-cur_l <- cur_l + 1;
-} else { cur_l <- 1+dseq[i+1] }
-max_l <- max(cur_l, max_l)
+  dseq <- seq[-1] > seq[-length(seq)]; cur_l <- 1+dseq[1]; max_l <- cur_l
+  for (i in 1:(length(dseq)-1)) {
+    if (dseq[i] && (dseq[i] == dseq[i+1])) {
+    cur_l <- cur_l + 1;
+    } else { cur_l <- 1+dseq[i+1] }
+  max_l <- max(cur_l, max_l)
+  }
+  return(max_l)
 }
-return(max_l)
+```
+
+1. Utilisation de sapply et table
+
+```{r}
+n <- 1000
+k <- 100000
+```
+
+```{r}
+system.time({
+  set.seed(234)
+  res <- sapply(1:k, function(aux){max_inc(runif(n))})
+})
+table(res)
+```
+2. Utilisation du package parallel
+
+```{r,message=FALSE,warning=FALSE}
+require(parallel)
+system.time({
+  cl <- makeCluster(detectCores()-1)    
+  clusterExport(cl, varlist=c("n","k","max_inc"))
+  res <- parSapply(cl, 1:k, function(aux){max_inc(runif(n))})
+  stopCluster(cl)
+})
+table(res)
+```
+
+3. Pour accelérer encore les temps de calcul, il faut utiliser le package Rcpp.
+
+```{Rcpp}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+
+// [[Rcpp::export]]
+int max_inc_rcpp(NumericVector x) {
+  int max_l = 0;
+  int cur_l = 0;
+  bool cur_g, prev_g;
+  cur_g = x[1] > x[0];
+  cur_l = 1 + cur_g;
+  max_l = cur_l;
+  for (int i = 1; i < (x.length()-1); i++) {
+    prev_g = cur_g;
+    cur_g = x[i+1] > x[i];
+    if (cur_g && (prev_g == cur_g)) {
+      cur_l = cur_l + 1;
+    } else {
+      cur_l = 1 + cur_g;
+    }
+    if (cur_l > max_l) { max_l = cur_l;};
+  }
+  return max_l;
 }
+```
+
+```{r}
+system.time(res <- sapply(1:k, function(i) { max_inc_rcpp(runif(n)) }))
 ```
 
 ## Exercice 4.5 : 
@@ -160,12 +220,11 @@ La probabilité critique obtenue par le test classique, 0.01484, est proche de c
 
 3. On utilise le package parallel et la fonction parLapply
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 require(parallel)
 cl <- makeCluster(3)
 clusterExport(cl, varlist=c("x","y","cor.xy"))
 system.time({
-  set.seed(234)
   res <- parSapply(cl, 1:nbsim, function(aux){1*(cor(x,y[sample(length(y))])>cor.xy)})
 })
 stopCluster(cl)
