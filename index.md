@@ -22,7 +22,7 @@ title: R pour la statistique et la science des données
 
 <h2 id="auteurs">Boutique en ligne</h2>
 
-[Par ici (dès le 25 octobre)!]
+[<a href="http://pur-editions.fr/detail.php?idOuv=4716">Par ici!</a>]
 
 <h2 id="matériel-disponible">Matériel disponible</h2>
 
