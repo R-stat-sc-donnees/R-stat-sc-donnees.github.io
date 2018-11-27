@@ -30,7 +30,7 @@ title: R pour la statistique et la science des données
   <li><a href="/liste_don.html">Jeux de données</a></li>
 <li><a href="/code_html/code.html">Ligne de code utilisées dans les chapitres (y compris les fiches)</a></li>
 <li><a href="/correction_html/correction_exo.html">Proposition de correction des exercices</a></li>
-<li><a href="geocodeGratuit.R">Une fonction pour trouver la géolocalisation (latitudes et longitudes) d'adresses</a></li>
+<li><a href="geocodeGratuit.R">Fonction permettant d'obtenir la géolocalisation (latitudes et longitudes) d'adresses</a></li>
 </ul>
 
 </div>
