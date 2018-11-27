@@ -1,11 +1,17 @@
-## fonction geocoding utilisant OSM Nominatim API
-## details: http://wiki.openstreetmap.org/wiki/Nominatim
-## fonction nominatim_osm proposée par D.Kisler
+## fonction permettant de trouver les longitudes et latitudes
+## d'un vecteur contenant plusieurs adresses
+
+#####  Exemple d'utilisation de la fonction pour trouver les coordonnées geographiques de 4 adresses
+# MesAdresses <- c("Jussieu, Paris", "Ecole polytechnique, Palaiseau","35000 France","Rennes")
+# geocodeGratuit(MesAdresses)
+
 
 if (!(require(jsonlite))) install.packages("jsonlite")
 geocodeGratuit <- function(adresses){
 # adresses est un vecteur contenant toutes les adresses sous forme de chaine de caracteres
   nominatim_osm <- function(address = NULL){
+    ## details: http://wiki.openstreetmap.org/wiki/Nominatim
+    ## fonction nominatim_osm proposée par D.Kisler
     if(suppressWarnings(is.null(address)))  return(data.frame())
     tryCatch(
       d <- jsonlite::fromJSON(
@@ -19,7 +25,4 @@ geocodeGratuit <- function(adresses){
   return(t(sapply(adresses,nominatim_osm)))
 }
 
-#####  Exemple : trouver les coordonnées géographiques de 4 adresses
-# MesAdresses <- c("Jussieu, Paris", "Ecole polytechnique, Palaiseau","35000 France","Rennes")
-# geocodeGratuit(MesAdresses)
 
