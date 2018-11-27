@@ -1,8 +1,8 @@
 ## fonction permettant de trouver les longitudes et latitudes
 ## d'un vecteur contenant plusieurs adresses
 
-#####  Exemple d'utilisation de la fonction pour trouver les coordonnées geographiques de 4 adresses
-# MesAdresses <- c("Jussieu, Paris", "Ecole polytechnique, Palaiseau","35000 France","Rennes")
+#####  Exemple d'utilisation pour trouver les coordonnees geographiques de 4 adresses
+# MesAdresses <- c("4 place Jussieu Paris","école Polytechnique, Palaiseau", "35000 France","Rennes")
 # geocodeGratuit(MesAdresses)
 
 
