@@ -20,9 +20,11 @@ geocodeGratuit <- function(adresses){
       ), error = function(c) return(data.frame())
     )
     if(length(d) == 0) return(data.frame())
-    return(data.frame(lon = as.numeric(d$lon), lat = as.numeric(d$lat))) 
+    return(c(as.numeric(d$lon), as.numeric(d$lat)))
   }
-  return(t(sapply(adresses,nominatim_osm)))
+  tableau <- t(sapply(adresses,nominatim_osm))
+  colnames(tableau) <- c("lon","lat")
+  return(tableau)
 }
 
 
