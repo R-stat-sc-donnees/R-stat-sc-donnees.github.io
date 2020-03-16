@@ -1,44 +1,47 @@
 ---
-title: "Correction des exercices du chapitre 5"
-author: "Husson et al."
-date: "09/09/2018"
-output:
+title: "Chapitre 5"
+output: 
   html_notebook:
+    css: ~/Dropbox/FICHIERS_STYLE/styles.css
     toc: yes
-    toc_depth: 3
     toc_float: yes
   html_document:
+    css: ~/Dropbox/FICHIERS_STYLE/styles.css
+    df_print: paged
     toc: yes
-    toc_depth: '3'
-    toc_float: yes
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
 ```
 
 ## Exercice 5.1 : Les prénoms aux USA
 
-1. Commençons par une solution en R de base
+1. Commençons par une solution en R classique
+
 ```{r,message=FALSE,warning=FALSE}
 library(babynames)
-
 babynames2000 <- babynames[babynames$year==2000,]
 babynames2000_split <- split(babynames2000, babynames2000$sex)
 babynames2000_split_top10 <- lapply(babynames2000_split, function(df) {df[order(df$n, decreasing = TRUE)[1:10],]})
 babynames2000_top10 <- do.call(rbind, babynames2000_split_top10)
 babynames2000_top10
 ```
-Avec data.table, on peut faire
+
+Avec **data.table**, on peut faire
+
 ```{r,message=FALSE,warning=FALSE}
 library(data.table)
 babynames_dt <- data.table(babynames)
 babynames2000_top10_dt <- babynames_dt[year == 2000,.SD[order(n, decreasing = TRUE)[1:10],], by = sex]
 babynames2000_top10_dt
 ```
-Enfin avec dplyr,
+
+Enfin avec **dplyr**,
+
 ```{r,message=FALSE,warning=FALSE}
-library(dplyr)
 babynames_tbl <- babynames
 babynames2000_top10_tbl <- babynames_tbl %>%
   filter(year == 2000) %>% 
@@ -47,24 +50,13 @@ babynames2000_top10_tbl <- babynames_tbl %>%
   arrange(desc(n), .by_group = TRUE)
 babynames2000_top10_tbl      
 ```
-2. De même,
-```{r,message=FALSE,warning=FALSE}
-      babynames_evo <- merge(babynames2000_top10[,c("sex", "name")],
-                       babynames)
 
-babynames_evo_dt <-
-  babynames_dt[babynames2000_top10_dt[,c("sex", "name")],
-            , on = c("sex", "name")]
+2. Il faut tout d'abord calculé, pour chaque année et chaque sexe, les 2 prénoms les plus utilisées. On somme ensuite les proportions associées à chaque prénom.
 
-babynames_evo_tbl <- left_join(babynames2000_top10_tbl %>% select(sex, name),
-          babynames_tbl)
-```
-
-3. Ici, on peut par exemple faire
-```{r,message=FALSE,warning=FALSE,results='hide'}
-      babynames_split <- split(babynames,
-                            list(babynames$sex,
-                                 babynames$year))
+  * En R classique ça donne 
+  
+```{r}
+babynames_split <- split(babynames,list(babynames$sex,babynames$year))
 babynames_split_prop <- lapply(babynames_split,
                                function(df) {
                                  df <- df[order(df$prop, decreasing = TRUE)[1:10],]
@@ -72,54 +64,73 @@ babynames_split_prop <- lapply(babynames_split,
                                })
 babynames_prop <- do.call(rbind, babynames_split_prop)
 babynames_prop
+```
+  
+  * en **data.table**
+  
+```{r}
+babynames_dt[, .SD[order(prop, decreasing = TRUE)[1:10],],by = c("sex", "year")][, .(prop_tot = sum(prop)), by = c("sex", "year")]
+```
+  
+  * enfin en **dplyr**
+  
+```{r}
+babynames %>% group_by(sex,year) %>% top_n(10,n) %>% summarise(sum_prop=sum(prop))
+```
+  
 
-babynames_prop_dt <- babynames_dt[, .SD[order(prop, decreasing = TRUE)[1:10],],
-                                  by = c("sex", "year")][, .(prop_tot = sum(prop)), by = c("sex", "year")]
-babynames_prop_dt
+3. On doit tout d'abord faire une jointure entre la table initiale et la table de la question 1. On somme ensuite les proportions associées à chaue prénom.
 
-babynames_prop_tbl <- babynames %>%
-  group_by(sex, year) %>%
-  top_n(10, prop) %>%
-  summarize(prop_tot = sum(prop))
-babynames_prop_tbl
+  * En R classique ça donne
+  
+```{r}
+babynames_merge <- merge(babynames2000_top10[,c("sex", "name")],babynames)
+babynames_split <- split(babynames_merge,list(babynames_merge$sex,babynames_merge$year))
+babynames_split_prop <- lapply(babynames_split,
+                               function(df) {
+                                 df <- df[order(df$prop, decreasing = TRUE),]
+                                 data.frame(year = df$year[[1]], sex = df$sex[[1]], prop_tot = sum(df$prop))
+                               })
+babynames_prop <- do.call(rbind, babynames_split_prop)
+babynames_prop
+```
+  
+  * en **data.table**
+  
+```{r}
+babynames_dt[babynames2000_top10_dt[,c("sex", "name")],, on = c("sex", "name")][, .(prop_tot = sum(prop)), by = c("sex", "year")]
+```
+  
+  * enfin en **dplyr**
+
+```{r}
+left_join(babynames2000_top10_tbl %>% select(sex, name),babynames_tbl) %>% group_by(sex,year) %>% summarize(prop2000=sum(prop))
 ```
 
-4. Pour cette partie, on peut utiliser le package
-*MonetDBlite* qui est une alternative avantageuse à
-*RSqlLite*. Pour simuler la base à distance, on commence par
-      copier notre table:
-```{r,message=FALSE,warning=FALSE,results='hide'}
-library(MonetDBLite)
+4. Pour simuler la base à distance, on commence par copier notre table à l'aide de **SQLite**
+
+```{r}
 library(DBI)
-
-con <- dbConnect(MonetDBLite())
-dbWriteTable(con, name = "babynames", 
-babynames, overwrite = TRUE)
+con <- dbConnect(RSQLite::SQLite())
+dbWriteTable(con, name = "babynames",babynames, overwrite = TRUE)
 ```
-On peut alors lancer des requêtes SQL avec *dbGetQuery*:
-```{r,message=FALSE,warning=FALSE}
+
+
+
+On peut alors lancer des requêtes SQL avec *dbGetQuery*. 
+
+  * Pour la question 1 on a
+  
+```{r}
 dbGetQuery(con,
            'SELECT * FROM
            (SELECT *, RANK() OVER (PARTITION BY "sex" ORDER BY "n" DESC) as rank  FROM  babynames WHERE ("year" = 2000)) as TMP
            WHERE rank <= 10')
-
-dbGetQuery(con,
-           'WITH babynames_top2000 AS
-           (SELECT * 
-           FROM
-           (SELECT *, RANK() OVER (PARTITION BY "sex" ORDER BY "n" DESC) as rank  FROM  babynames WHERE ("year" = 2000)) as TMP
-           WHERE rank <= 10)
-           
-           SELECT babynames."year" as "year",
-                  babynames.sex as sex,
-                  babynames.name as name,
-                  babynames.n as n,
-                  babynames.prop as prop
-           FROM 
-           babynames_top2000
-           LEFT JOIN 
-           babynames ON (babynames_top2000.sex = babynames.sex AND babynames_top2000.name = babynames.name)')
-
+```
+  
+  * pour la question 2
+  
+```{r}
 dbGetQuery(con,
            'WITH babynames_top AS
            (SELECT * 
@@ -131,29 +142,436 @@ dbGetQuery(con,
            babynames_top 
            GROUP BY "year", sex')
 ```
+  
+  * et enfin la question 3
 
-Une alternative est l'utilisation du package *dbplyr*:
+```{r}
+dbGetQuery(con,
+           'WITH babynames_top2000 AS (
+           SELECT * 
+           FROM
+           (SELECT *, RANK() OVER (PARTITION BY "sex" ORDER BY "n" DESC) as rank  FROM  babynames WHERE ("year" = 2000)) as TMP
+           WHERE rank <= 10
+           ), 
+           babynames_merge AS (
+            SELECT  babynames."year" as "year",
+                    babynames.sex as sex,
+                    babynames.name as name,
+                    babynames.n as n,
+                    babynames.prop as prop
+            FROM 
+            babynames_top2000
+            LEFT JOIN 
+            babynames ON (babynames_top2000.sex = babynames.sex AND babynames_top2000.name = babynames.name))
+            SELECT "year", sex, SUM(prop) as prop_tot FROM
+            babynames_merge 
+            GROUP BY "year", sex')
+```
+
+Une alternative aux requêtes SQL est l'utilisation du package **dbplyr** :
 
 ```{r,message=FALSE,warning=FALSE}
-library(dbplyr)
 babynames_sql <- tbl(con, "babynames")
-
-babynames2000_top10_sql <- babynames_sql %>%
-  filter(year == 2000) %>% 
-  group_by(sex) %>%
-  top_n(10, n) %>%
-  arrange(sex, desc(n))
-
-babynames2000_top10_sql %>% collect()
-
-
-babynames_evo_sql <- left_join(babynames2000_top10_sql %>% select(sex, name),
-                               babynames_sql)
-babynames_evo_sql %>% collect()
-
-babynames_prop_sql <- babynames_sql %>%
-  group_by(sex, year) %>%
-  top_n(10, prop) %>%
-  summarize(prop_tot = sum(prop))
-babynames_prop_sql %>% collect()  
 ```
+
+  * On obtient pour la question 1
+  
+```{r}
+babynames2000_sql <- babynames_sql %>%
+  filter(year == 2000) %>% 
+  group_by(sex) 
+
+babynames2000_top10_sql <- babynames2000_sql %>% collect() %>% top_n(10,n)
+babynames2000_top10_sql
+```
+  
+
+   * Pour la question 2
+   
+```{r}
+babynames_sql %>% group_by(sex,year) %>% arrange(desc(n),.by_group=TRUE) %>% collect() %>% top_n(10,n) %>% summarise(sum_prop=sum(prop))
+```
+   
+   * et enfin pour la question 3
+   
+```{r message=FALSE, warning=FALSE}
+dbWriteTable(con, name = "babynames2000_top10_sql",babynames2000_top10_sql, overwrite = TRUE)
+babynames2000_top10_sql <- tbl(con, "babynames2000_top10_sql")
+
+left_join(babynames2000_top10_sql %>% select(sex, name),babynames_sql) %>% group_by(sex,year) %>% summarize(prop2000=sum(prop))
+```
+   
+Et on n'oublie pas de se déconnecter !
+```{r}
+dbDisconnect(con)
+```
+   
+
+
+
+## Exercice 5.2 : Les tournois majeurs au tennis en 2013
+
+1. On utilise **read_csv** pour travailler avec un **tibble**.
+
+```{r message=FALSE, warning=FALSE}
+df <- read_csv("FrenchOpen-men-2013.csv")
+```
+
+2. 
+
+```{r}
+df %>% distinct(Player1)
+```
+
+3. 
+
+```{r}
+df %>% distinct(Player2)
+```
+
+4. 
+
+```{r}
+df %>% filter(Player1=="Roger Federer" | Player2=="Roger Federer") %>% select(contains("Play"))
+```
+
+5.
+
+```{r}
+df %>% filter(Round==6) %>% select(contains("Play"))
+```
+
+
+6. 
+
+```{r}
+df %>% mutate(nb_points=TPW.1+TPW.2) %>% summarise(nb_points_moy=mean(nb_points))
+```
+
+7.
+
+```{r}
+df %>% mutate(nb_ace=ACE.1+ACE.2) %>% group_by(Round) %>% 
+  summarise(min=min(nb_ace),max=max(nb_ace),moy=mean(nb_ace))
+```
+
+8.
+
+```{r}
+df %>% mutate(dbf=DBF.1+DBF.2) %>% summarize(tot.df=sum(dbf,na.rm=TRUE))
+```
+
+9.
+
+```{r}
+df %>% mutate(dbf=DBF.1+DBF.2) %>% ggplot() + aes(x=dbf) + geom_histogram(bins=10) + theme_bw()
+```
+
+10.
+
+```{r}
+df %>% mutate(dbf=DBF.1+DBF.2) %>% group_by(Round) %>% summarize(dbf=mean(dbf,na.rm=TRUE)) %>%
+  ggplot() + aes(x=Round,y=dbf) + geom_bar(stat="identity",fill="red") + theme_classic()
+```
+
+
+11.
+
+```{r}
+df %>% select(Result,FSP.1,FSP.2) %>% gather(key="Player",value="FSP",-Result) %>% 
+  mutate(Result=as.character((Result==1 & Player=="FSP.1") | (Result==0 & Player=="FSP.2"))) %>% 
+  mutate(Result=fct_recode(Result,vic="TRUE",def="FALSE")) %>%
+  ggplot() + aes(x=Result,y=FSP)+geom_boxplot()+theme_classic()
+```
+
+Il semble qu'il y ait une légère influence du pourcentage de premier service sur le résultat. On effectue un test de comparaison de moyennes pour vérifier :
+
+```{r}
+df1 <- df %>% select(Result,FSP.1,FSP.2) %>% gather(key="Player",value="FSP",-Result) %>% 
+  mutate(Result=as.character((Result==1 & Player=="FSP.1") | (Result==0 & Player=="FSP.2"))) %>% 
+  mutate(Result=fct_recode(Result,vic="TRUE",def="FALSE"))
+t.test(FSP~Result,data=df1)
+```
+
+Au niveau 10%, on concluera qu'il y a une influence. 
+
+## Exercice 5.3 : Le vélo STAR, encore !
+
+1. On importe les tables
+
+
+```{r}
+url <- paste0(
+"https://data.rennesmetropole.fr/api/records/1.0/search/",
+"?dataset=etat-des-stations-le-velo-star-en-temps-reel",
+"&rows=100",
+"&facet=nom",
+"&facet=etat",
+"&facet=nombreemplacementsactuels",
+"&facet=nombreemplacementsdisponibles",
+"&facet=nombrevelosdisponibles",
+"&facet=coordonnees"
+)
+ll <- jsonlite::fromJSON(url)
+etat <- ll$records$fields
+```
+
+```{r}
+url1 <- paste0(
+"https://data.rennesmetropole.fr/api/records/1.0/search/",
+"?dataset=topologie-des-stations-le-velo-star",
+"&rows=100")
+ll1 <- jsonlite::fromJSON(url1)
+topo <- ll1$records$fields
+```
+
+2. On créé la table demandée
+
+```{r}
+glimpse(etat)
+latlong <- etat$coordonnees %>% unlist() %>% matrix(ncol=2,byrow=T) %>% as.data.frame()
+names(latlong) <- c("latitude","longitude")
+etat1 <- bind_cols(etat,latlong) %>% select(-coordonnees)
+df <- inner_join(etat1,topo,by="nom") %>% select(id,nom,idstationproche1,latitude,longitude) %>% mutate(id=as.numeric(id))
+df1 <- left_join(df,df,by=c("idstationproche1"="id")) %>% mutate(dist=(latitude.x-latitude.y)^2+(longitude.x-longitude.y)^2) 
+
+```
+
+3. On calcule les stations les plus proches du point demandé
+
+```{r}
+etat1 %>% mutate(distance=(latitude-48.1179151)^2+(longitude+1.7028661)^2) %>% arrange(distance) %>% head(3) %>%
+  arrange(distance,nombreemplacementsdisponibles) %>% select(nom,distance,nombreemplacementsdisponibles)
+```
+
+## Exercice 5.4 : Se cultiver par hasard
+
+```{r message=FALSE, warning=FALSE}
+library(rvest)
+```
+
+1. On se connecte à la page **wikipedia**
+
+```{r}
+wikipedia <- "https://fr.wikipedia.org/"
+accueil <- "wiki/Wikipédia:Accueil_principal"
+url0 <- paste0(wikipedia,accueil)
+data_html <- read_html(url0)
+```
+
+2. On obtient les liens de la page avec 
+
+
+```{r}
+internal_links <- 'a[href*="/wiki/"]:not([href*="//"])'
+lien0 <- data_html %>% html_nodes(internal_links) %>% html_attr("href")
+head(lien0)
+```
+
+4. On choisit une page au hasard
+
+```{r}
+set.seed(123)
+lien_sel <- lien0 %>% sample(1)
+lien_sel
+```
+
+que l'on lit puis, sur laquelle on rechoisit une page au hasard
+
+```{r}
+set.seed(1234)
+url1 <- paste0(wikipedia,lien_sel)
+read_html(url1) %>% html_nodes(internal_links) %>% html_attr("href") %>% sample(1)
+```
+
+
+5. On peut écrire une fonction qui sélectionne un lien aléatoirement sur une page donnée :
+
+```{r}
+select_link <- function(url){
+  read_html(url) %>%
+    html_nodes(internal_links) %>%
+    html_attr("href") %>%
+    sample(1)
+}
+```
+
+On peut ainsi en déduire les pages visitées pendand un nombre de jour donnée :
+
+```{r message=FALSE, warning=FALSE}
+library(magrittr)
+pages_visitees <- function(nb_jours){
+  liens_visites <- c()
+  for(i in 1:nb_jours){
+    wikipedia %>%
+      select_link() %T>%
+      {liens_visites <<- append(liens_visites, .)} %>%
+      str_c(wikipedia, .) %>%
+      select_link() %>%
+      {liens_visites <<- append(liens_visites, .)}
+  }
+  return(unique(liens_visites))
+}
+```
+
+6. Par exemple en 10 ans on aura visité :
+
+```{r}
+pages_10ans <- pages_visitees(3652)
+head(pages_10ans)
+length(pages_10ans)
+```
+
+7. On peut renouveler le protocole 20 fois (il faudrait plus mais c'est très long !):
+
+```{r}
+set.seed(1234)
+nb_visite <- rep(0,20)
+for (i in 1:20){
+  nb_visite[i] <- pages_visitees(3652) %>% length()
+}
+```
+
+On peut regarder le résumé 
+
+```{r}
+summary(nb_visite)
+```
+
+et visualiser l'histogramme
+
+```{r}
+tibble(nb_visite) %>% ggplot() +aes(x=nb_visite)+geom_histogram(bins = 5,fill="red")+theme_classic()
+```
+
+
+## Exercice 5.5 : Un peu de musique
+
+1. On se connecte à la base de données et on inspecte les différentes bases.
+
+```{r}
+library(DBI)
+conn <- dbConnect(RSQLite::SQLite(), dbname = "Chinook_Sqlite.sqlite")
+dbListTables(conn)
+```
+
+```{r}
+dbListFields(conn,"Playlist")
+dbListFields(conn,"PlaylistTrack")
+dbListFields(conn,"Track")
+dbListFields(conn,"Album")
+```
+
+
+2. On affecte les tables de la base de données à une liste de `tibbles`. On pourrait croire que c'est très gourmand en mémoire pour de gros tableaux mais en fait pas du tout. C'est juste une liste d'objets qui permettent de faire une connexion avec la base de données. Donc on peut il aller gaiment !
+
+
+```{r}
+musique <- list()
+for(name in dbListTables(conn)){
+  musique[[name]] <- tbl(conn, name)
+}
+names(musique)
+```
+
+La requête (après avoir regardé un peu la structure des tables) est la suivante
+
+
+```{r}
+result <- musique$Playlist %>%
+  filter(Name == "Classical") %>%
+  left_join(musique$PlaylistTrack, by = "PlaylistId") %>%
+  left_join(musique$Track, by = "TrackId") %>%
+  select(Song = Name.y, AlbumId) %>%
+  left_join(musique$Album, by = "AlbumId") %>%
+  select(Song, Album = Title)
+```
+
+On regarde les résultats
+
+```{r}
+result %>% collect()
+```
+
+3. On peut regarder la requête SQL
+
+```{r}
+result %>% show_query()
+```
+
+Et on n'oublie pas de se déconnecter !
+```{r}
+dbDisconnect(conn)
+```
+
+## Exercice 5.6 : Du trampoline sur Wikipedia
+
+1. On récupère tout d'abord le tableau
+
+
+```{r}
+url <- "https://fr.wikipedia.org/wiki/Liste_des_médaillés_olympiques_au_trampoline"
+tramp <- read_html(url)
+tab <- tramp %>% html_table()
+tramp.f <- tab[[2]]
+```
+
+2. On créé le dataframe
+
+```{r}
+tramp.f1 <- tramp.f %>% gather(key="med",value="ath_p",Or,Argent,Bronze) %>%
+  separate(ath_p,into=c("nom","pays"),sep="\\(") %>% mutate(pays=str_remove(pays,"\\)"))
+tramp.f1
+```
+
+3.On le classe en fonction des médailles
+
+```{r}
+tramp.f1 %>% group_by(pays,med) %>% summarize(nomb=n()) %>% spread(med,nomb) %>% select(c(1,4,2,3)) %>%
+  arrange(desc(Or,Argent,Bronze))
+```
+
+4. On fait la même chose pour les hommes
+
+```{r}
+tramp.h <- tab[[1]]
+tramp.h1 <- tramp.h %>% gather(key="med",value="ath_p",Or,Argent,Bronze) %>%
+  separate(ath_p,into=c("nom","pays"),sep="\\(") %>% mutate(pays=str_remove(pays,"\\)"))
+tramp.h1 %>% group_by(pays,med) %>% summarize(nomb=n()) %>% spread(med,nomb) %>% select(c(1,4,2,3)) %>%
+  arrange(desc(Or,Argent,Bronze))
+```
+
+et enfin pour le tableau mixte
+
+```{r}
+tramp.fh <- bind_rows(tab[[1]],tab[[2]])
+tramp.fh1 <- tramp.fh %>% gather(key="med",value="ath_p",Or,Argent,Bronze) %>%
+  separate(ath_p,into=c("nom","pays"),sep="\\(") %>% mutate(pays=str_remove(pays,"\\)"))
+tramp.fh1 %>% group_by(pays,med) %>% summarize(nomb=n()) %>% spread(med,nomb) %>% select(c(1,4,2,3)) %>%
+  arrange(desc(Or,Argent,Bronze))
+```
+
+
+## Exercice 5.7 : Débouchés dans l'enseignement supérieur français
+
+1. 
+
+```{r}
+df <- jsonlite::fromJSON("fr-esr-insertion_professionnelle-master.json")$fields
+```
+
+```{r}
+df1 <- df %>% select(etablissement,salaire_net_median_des_emplois_a_temps_plein,salaire_net_mensuel_median_regional) %>%
+  mutate(salaire_net_median_des_emplois_a_temps_plein=as.numeric(salaire_net_median_des_emplois_a_temps_plein),
+         salaire_net_mensuel_median_regional=as.numeric(salaire_net_mensuel_median_regional))
+df2 <- df1 %>% group_by(etablissement) %>% summarize(sal.temps.plein=mean(salaire_net_median_des_emplois_a_temps_plein,na.rm=TRUE),
+                                              sal.reg=mean(salaire_net_mensuel_median_regional,na.rm=TRUE))
+df2
+```
+
+2. On classe selon le ratio demandé.
+
+```{r}
+df2 %>% mutate(ratio=sal.temps.plein/sal.reg) %>% arrange(desc(ratio))
+```
+
