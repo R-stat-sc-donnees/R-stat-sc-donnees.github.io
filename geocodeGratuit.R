@@ -16,7 +16,7 @@ geocodeGratuit <- function(adresses){
     tryCatch(
       d <- jsonlite::fromJSON(
         gsub('\\@addr\\@', gsub('\\s+', '\\%20', address),
-             'http://nominatim.openstreetmap.org/search/@addr@?format=json&addressdetails=0&limit=1')
+             'http://nominatim.openstreetmap.org/search?q=@addr@&format=json&addressdetails=0&limit=1')
       ), error = function(c) return(data.frame())
     )
     if(length(d) == 0) return(data.frame())
